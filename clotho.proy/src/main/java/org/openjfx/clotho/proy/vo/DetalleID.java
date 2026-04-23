@@ -11,9 +11,9 @@ public class DetalleID implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Column(name = "identificador_pedido")
-	private Pedido identificadorPedido;
+	private int identificadorPedido;
 	
 	@Column(name = "identificador_servicio")
-	private Servicio identificadorServicio;
+	private int identificadorServicio;
 	
 }

@@ -1,4 +1,3 @@
 /target/
 .metadata
-clotho.proy
 clotho.proy/src/main/resources/hibernate.cfg.xml

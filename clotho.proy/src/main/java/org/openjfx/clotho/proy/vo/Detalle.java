@@ -22,7 +22,7 @@ public class Detalle {
 	@Column(name = "cantidad", nullable = true)
 	private int cantidad;
 	
-	@ManyToOne(fetch = FetchType.EAGER) 
+	@ManyToOne(fetch = FetchType.EAGER)
     @MapsId("identificadorPedido")	
     @JoinColumn(name = "identificador_pedido", nullable = false)
 	private Pedido pedido;

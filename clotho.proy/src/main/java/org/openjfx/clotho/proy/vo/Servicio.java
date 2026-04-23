@@ -18,12 +18,12 @@ public class Servicio {
 	@Column(name = "nombre", nullable = true, unique = true)
 	private String nombre;
 	
-	@Column(name = "float", nullable = true)
+	@Column(name = "precio", nullable = true)
 	private float precio;
 	
 	@ManyToOne
 	@JoinColumn(name = "identificador_categoria", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_SERVICIO_CATEGORIA"))
-	private Categoria cliente;
+	private Categoria categoria;
 
 	public int getIdentificador() {
 		return identificador;
@@ -50,10 +50,10 @@ public class Servicio {
 	}
 
 	public Categoria getCliente() {
-		return cliente;
+		return categoria;
 	}
 
 	public void setCliente(Categoria cliente) {
-		this.cliente = cliente;
+		this.categoria = cliente;
 	}
 }
