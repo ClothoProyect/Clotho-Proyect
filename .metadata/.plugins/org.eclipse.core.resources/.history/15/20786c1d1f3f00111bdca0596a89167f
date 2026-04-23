@@ -1,7 +1,0 @@
-package org.openjfx.clotho.proy.vo;
-
-@Entity
-@Table(name = "T_DETALLE")
-public class Detalle {
-
-}

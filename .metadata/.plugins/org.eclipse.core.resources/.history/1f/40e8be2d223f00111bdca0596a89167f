@@ -1,7 +1,0 @@
-package org.openjfx.clotho.proy.dao.hbnt;
-
-import org.openjfx.clotho.proy.dao.CategoriaDAO;
-
-public class CategoriaDaoHBNT implements CategoriaDAO {
-
-}

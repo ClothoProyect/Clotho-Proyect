@@ -1,5 +1,0 @@
-package org.openjfx.clotho.proy.dao;
-
-public interface Pedido extends IOperacionesDAOEntidad<PedidoDAO, Integer> {
-
-}
