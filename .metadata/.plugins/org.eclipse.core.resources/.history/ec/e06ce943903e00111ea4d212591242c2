@@ -1,0 +1,14 @@
+package org.openjfx.clotho.proy.vo;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "T_CLIENTE")
+public class Cliente {
+	@Id
+	@Column(name = "identificador")
+	private int identificador;
+}

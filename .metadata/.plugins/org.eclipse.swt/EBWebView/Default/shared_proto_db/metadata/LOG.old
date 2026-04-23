@@ -1,0 +1,4 @@
+2026/04/22-23:29:24.157 3f0c Reusing MANIFEST D:\Clotho_Proy\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\shared_proto_db\metadata/MANIFEST-000001
+2026/04/22-23:29:24.159 3f0c Recovering log #3
+2026/04/22-23:29:24.160 3f0c (ignoring error) D:\Clotho_Proy\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\shared_proto_db\metadata/000003.log: dropping 55 bytes; Corruption: checksum mismatch
+2026/04/22-23:29:24.161 3f0c Reusing old log D:\Clotho_Proy\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\shared_proto_db\metadata/000003.log 

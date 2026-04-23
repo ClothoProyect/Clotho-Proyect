@@ -1,0 +1,5 @@
+package org.openjfx.clotho.proy.gestor;
+
+public class GestorSesionesHibernate {
+
+}

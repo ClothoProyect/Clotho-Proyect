@@ -1,0 +1,8 @@
+module org.openjfx.clotho.proy {
+    requires javafx.controls;
+    requires javafx.fxml;
+	requires org.hibernate.orm.core;
+
+    opens org.openjfx.clotho.proy to javafx.fxml;
+    exports org.openjfx.clotho.proy;
+}

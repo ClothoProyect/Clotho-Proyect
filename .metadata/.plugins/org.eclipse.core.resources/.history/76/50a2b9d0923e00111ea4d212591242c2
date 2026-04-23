@@ -1,0 +1,38 @@
+package org.openjfx.clotho.proy.vo;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "T_CLIENTE")
+public class Cliente {
+	@Id
+	@Column(name = "identificador", nullable = true)
+	private int identificador;
+	
+	@Column(name = "nombre", length = 70, nullable = true)
+	private String nombre;
+	
+	@Column(name = "apellidos", length = 70)
+	private String apellidos;
+
+	@Column(name = "email", length = 100, nullable = false)
+	private String email;
+	
+	@Column(name = "telefono", length = 100, nullable = false)
+	private String telefono;
+
+	@Column(name = "cif", length = 70, nullable = true)
+	private String cif;
+
+	@Column(name = "direccion", length = 70, nullable = false)
+	private String direccion;
+
+	@Column(name = "codigo_postal", length = 7, nullable = true)
+	private String codigoPostal;
+
+	@Column(name = "notas_adicionales", length = 70, nullable = true)
+	private String notasAdicionales;
+}
