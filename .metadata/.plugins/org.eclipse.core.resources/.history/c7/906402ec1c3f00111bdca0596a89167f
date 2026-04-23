@@ -1,0 +1,36 @@
+package org.openjfx.clotho.proy.vo;
+
+import java.sql.Date;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "T_PEDIDO")
+public class Pedido {
+	@Id
+	@Column(name = "identificador", nullable = true)
+	private int identificador;
+
+	@Column(name = "codigo_pedido", nullable = true)
+	private int codigoPedido;
+
+	@Column(name = "fecha", nullable = true)
+	private Date fecha;
+
+	@Column(name = "precio", nullable = true)
+	private float precio;
+
+	/* Dominio : "Retirado", "Sin Pagar", "Pagado"*/
+	@Column(name = "estado", nullable = true)
+	private String estado;
+
+	@ManyToOne
+	@JoinColumn(name = "identificador_cliente", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_PEDIDO_CLIENTE"))
+	private Cliente cliente;
+}

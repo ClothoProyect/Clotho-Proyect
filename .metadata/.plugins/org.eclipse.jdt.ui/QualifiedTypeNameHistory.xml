@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="org.hibernate.Session"/>
     <fullyQualifiedTypeName name="org.hibernate.cfg.Configuration"/>
     <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="java.io.Serializable"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.vo.DetalleID"/>
+    <fullyQualifiedTypeName name="jakarta.persistence.Column"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.vo.Cliente"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.dao.IOperacionesDAOEntidad"/>
+    <fullyQualifiedTypeName name="org.hibernate.Transaction"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="org.hibernate.Session"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.dao.CategoriaDAO"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.dao.DetalleDAO"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.dao.PedidoDAO"/>
+    <fullyQualifiedTypeName name="org.openjfx.clotho.proy.dao.ServicioDAO"/>
 </qualifiedTypeNameHistroy>

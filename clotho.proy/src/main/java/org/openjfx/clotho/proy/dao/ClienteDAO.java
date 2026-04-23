@@ -1,5 +1,7 @@
 package org.openjfx.clotho.proy.dao;
 
-public interface ClienteDAO {
+import org.openjfx.clotho.proy.vo.Cliente;
+
+public interface ClienteDAO extends IOperacionesDAOEntidad<Cliente, Integer> {
 
 }

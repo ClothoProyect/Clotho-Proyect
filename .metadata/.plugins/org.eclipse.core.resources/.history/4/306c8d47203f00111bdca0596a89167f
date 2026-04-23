@@ -1,0 +1,5 @@
+package org.openjfx.clotho.proy.dao;
+
+public interface CategoriaDAO extends IOperacionesDAOEntidad<Categoria, Integer> {
+
+}

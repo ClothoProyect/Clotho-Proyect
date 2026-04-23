@@ -1,0 +1,13 @@
+package org.openjfx.clotho.proy.vo;
+
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "T_DETALLE")
+public class Detalle {
+	
+	@EmbeddedId
+	private DetalleID detalleID;
+}

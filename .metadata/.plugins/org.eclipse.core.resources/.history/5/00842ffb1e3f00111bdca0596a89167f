@@ -1,0 +1,13 @@
+package org.openjfx.clotho.proy.vo;
+
+import java.io.Serializable;
+
+import jakarta.persistence.Embeddable;
+
+@Embeddable
+public class Detalle implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	private int
+}

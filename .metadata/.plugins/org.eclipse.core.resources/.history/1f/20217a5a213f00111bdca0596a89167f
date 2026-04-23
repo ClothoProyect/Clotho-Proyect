@@ -1,0 +1,127 @@
+package org.openjfx.clotho.proy.dao.hbnt;
+
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.SelectionQuery;
+import org.openjfx.clotho.proy.dao.ClienteDAO;
+import org.openjfx.clotho.proy.exception.ProyectoClothoException;
+import org.openjfx.clotho.proy.gestor.GestorSesionesHibernate;
+import org.openjfx.clotho.proy.vo.Cliente;
+
+public class ClienteDaoHBNT implements ClienteDAO {
+	@Override
+	public Cliente obtenerEntidadPorClave(int clave) throws ProyectoClothoException {
+		Cliente entidad = null;
+		try (Session sesion = GestorSesionesHibernate.getSession();) {
+			entidad = sesion.find(Cliente.class, clave);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return entidad;
+	}
+
+	@Override
+	public Cliente obtenerEntidadPorNombre(String nombre) throws ProyectoClothoException {
+		Cliente entidad = null;
+		String sentenciaHQL = "SELECT b FROM Cliente b where b.nombre like '" + nombre + "'";
+		try (Session sesion = GestorSesionesHibernate.getSession();) {
+			SelectionQuery<Cliente> sentenciaConsulta = sesion.createSelectionQuery(sentenciaHQL, Cliente.class);
+			entidad = sentenciaConsulta.getSingleResultOrNull();
+		} catch (Exception e) {
+			throw new ProyectoClothoException(new Exception("No se ha encontrado ningun registro en la Cliente de datos"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
+		}
+		return entidad;
+	}
+
+	@Override
+	public List<Cliente> obtenerListaTodasEntidades() throws ProyectoClothoException {
+		List<Cliente> lista = null;
+		String sentenciaHQL = "SELECT b FROM Cliente b";
+		try (Session sesion = GestorSesionesHibernate.getSession();) {
+
+			SelectionQuery<Cliente> sentenciaConsulta = sesion.createSelectionQuery(sentenciaHQL, Cliente.class);
+			lista = sentenciaConsulta.getResultList();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return lista;
+	}
+
+	@Override
+	public void crearEntidad(Cliente entidad) throws ProyectoClothoException {
+		Transaction transaccion = null;
+		Session sesion = null;
+		
+		try {
+			sesion = GestorSesionesHibernate.getSession();
+			transaccion = sesion.beginTransaction();
+
+			sesion.persist(entidad);
+
+			transaccion.commit();
+		} catch (Exception e) {
+			if (transaccion != null && transaccion.isActive()) {
+				transaccion.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if (sesion != null) {
+				sesion.close();
+			}
+		}
+	}
+
+	@Override
+	public void actualizarEntidad(Cliente entidad) throws ProyectoClothoException {
+		Transaction transaccion = null;
+		Session sesion = null;
+		
+		try {
+			sesion = GestorSesionesHibernate.getSession();
+			transaccion = sesion.beginTransaction();
+
+			if (!sesion.contains(entidad))
+				sesion.merge(entidad);
+
+			transaccion.commit();
+		}  catch (Exception e) {
+			if (transaccion != null && transaccion.isActive()) {
+				transaccion.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if (sesion != null) {
+				sesion.close();
+			}
+		}
+	}
+
+	@Override
+	public void borrarEntidadPorClave(int clave) throws ProyectoClothoException {
+		Transaction transaccion = null;
+		Session sesion = null;
+		
+		try {
+			sesion = GestorSesionesHibernate.getSession();
+			transaccion = sesion.beginTransaction();
+
+			Cliente Cliente = sesion.find(Cliente.class, clave);
+			sesion.remove(Cliente);
+
+			transaccion.commit();
+		}  catch (Exception e) {
+			if (transaccion != null && transaccion.isActive()) {
+				transaccion.rollback();
+			}
+			e.printStackTrace();
+		} finally {
+			if (sesion != null) {
+				sesion.close();
+			}
+		}
+	}
+
+}
