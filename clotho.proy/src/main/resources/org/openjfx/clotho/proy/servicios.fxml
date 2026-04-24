@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10.0" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/8.0.171" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="org.openjfx.clotho.proy.ServiciosController">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+    
+    <Label text="Nombre del Servicio" style="-fx-font-weight: bold;"/>
+    <TextField fx:id="txtNombreServicio" promptText="Ej: Dobladillo Pantalón"/>
+    
+    <Label text="Precio (€)" style="-fx-font-weight: bold;"/>
+    <TextField fx:id="txtPrecioServicio" promptText="15.50"/>
+    
+    <Label text="Descripción" style="-fx-font-weight: bold;"/>
+    <TextArea fx:id="txtDescripcionServicio" promptText="Detalles adicionales..." prefHeight="100.0"/>
+    
+    <Button text="Añadir al Pedido" onAction="#guardarServicio" maxWidth="Infinity" style="-fx-background-color: #2c3e50; -fx-text-fill: white;"/>
+</VBox>
