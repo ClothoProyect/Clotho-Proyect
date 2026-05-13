@@ -1,0 +1,36 @@
+package org.openjfx.clotho.proy.gestor;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class GestorSesionesHibernate {
+	private static SessionFactory sessionFactory = null;
+	
+	private GestorSesionesHibernate() {// Constructor privado para evitar instanciación
+	}
+
+	// Carga la configuración desde hibernate.cfg.xml
+	static {
+		try {
+			sessionFactory = new Configuration().configure().buildSessionFactory();
+		} catch (Throwable ex) {
+			System.err.println("Error en SessionFactory: " + ex);
+			throw new ExceptionInInitializerError(ex);
+		}
+	}
+
+	public static Session getSession() {
+		return sessionFactory.openSession();
+	}
+
+	public static Session getCurrentSession() {
+		return sessionFactory.getCurrentSession();
+	}
+
+	public static void cerrarFactoria() {
+		if (sessionFactory != null) {
+			sessionFactory.close();
+		}
+	}
+}

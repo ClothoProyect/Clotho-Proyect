@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="768.0" prefWidth="1024.0" stylesheets="@estilo.css" styleClass="panel-principal" 
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="org.openjfx.clotho.proy.PedidosController">
+    
+    <top>
+        <HBox spacing="15.0" alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+            <children>
+                <VBox spacing="5.0" alignment="CENTER_LEFT">
+                    <fx:define>
+                        <ToggleGroup fx:id="grupoAnio"/>
+                    </fx:define>
+                </VBox>
+
+                <VBox spacing="5.0">
+                    <Label text="Nº Ticket" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtFiltroNumTicket" prefWidth="100.0"/>
+                    <Label text="Año" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtFiltroAnio" prefWidth="250.0"/>
+                </VBox>
+
+                <VBox spacing="5.0">
+                    <Label text="Apellidos o Nombre" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtFiltroCliente" prefWidth="250.0"/>
+                </VBox>
+
+                <VBox spacing="5.0" style="-fx-border-color: #2c3e50; -fx-border-radius: 5px; -fx-padding: 5px;">
+                    <Label text="Fecha Ticket" style="-fx-font-weight: bold;"/>
+                    <HBox spacing="10.0">
+                        <VBox spacing="2.0">
+                            <Label text="Desde"/>
+                            <DatePicker fx:id="dpFiltroDesde" prefWidth="120.0"/>
+                        </VBox>
+                        <VBox spacing="2.0">
+                            <Label text="Hasta"/>
+                            <DatePicker fx:id="dpFiltroHasta" prefWidth="120.0"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="10.0" alignment="BOTTOM_LEFT">
+                    <Button text="Buscar" onAction="#ejecutarBusqueda" styleClass="boton-clotho" prefWidth="100.0"/>
+                    <HBox spacing="10.0">
+                        <Button text="Exportar tickets" styleClass="boton-clotho"/>
+                        <Button text="Finalizar" maxWidth="Infinity" styleClass="boton-clotho"/>
+                    </HBox>
+                </VBox>
+            </children>
+        </HBox>
+    </top>
+
+    <center>
+        <SplitPane orientation="VERTICAL" dividerPositions="0.5" BorderPane.alignment="CENTER">
+            <items>
+                
+                <VBox spacing="5.0">
+                    <padding>
+                        <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                    </padding>
+                    <Label text="Listado de Tickets" style="-fx-font-weight: bold;"/>
+                    <TableView fx:id="tablaTickets" VBox.vgrow="ALWAYS" styleClass="tabla-clotho">
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                        <columns>
+                            <TableColumn text="Nº Ticket" prefWidth="70.0" />
+                            <TableColumn text="Cliente" prefWidth="200.0" />
+                            <TableColumn text="Fecha Ticket" prefWidth="100.0" />
+                            <TableColumn text="Estado" prefWidth="80.0" />
+                            <TableColumn text="Total" prefWidth="80.0" />
+                            <TableColumn text="Fecha Entrega" prefWidth="120.0" />
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <HBox spacing="10.0">
+                    <padding>
+                        <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                    </padding>
+                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblTicketSeleccionado" text="Ticket Nº: --" style="-fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: #5bc0de; -fx-padding: 2px 5px;"/>
+                        <TableView fx:id="tablaDetalles" VBox.vgrow="ALWAYS" styleClass="tabla-clotho">
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
+                            <columns>
+                                <TableColumn text="Prenda - Arreglo" prefWidth="300.0" />
+                                <TableColumn text="Precio" prefWidth="80.0" />
+                                <TableColumn text="Notas Arreglo" prefWidth="150.0" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+                    
+                    <VBox spacing="10.0" prefWidth="150.0">
+                        <Button text="Anular Ticket" maxWidth="Infinity" styleClass="boton-clotho"/>
+                        <Button text="Cambio fecha ent." maxWidth="Infinity" styleClass="boton-clotho"/>
+                        <Button text="Reimprimir" maxWidth="Infinity" styleClass="boton-clotho"/>
+                        <CheckBox fx:id="chkImprimirMarcas" text="Reimprimir Marcas" wrapText="true"/>
+                        <Region VBox.vgrow="ALWAYS" /> 
+                    </VBox>
+                </HBox>
+            </items>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="15.0" alignment="CENTER" BorderPane.alignment="CENTER" style="-fx-background-color: #3498db;">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+            <children>
+                <VBox prefWidth="180.0" alignment="CENTER">
+                    <ImageView fitHeight="50.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                        <image><Image url="@zyp_logo.png" /></image>
+                    </ImageView>
+                </VBox>
+                
+                <Region HBox.hgrow="ALWAYS" /> <Button text="ENTREGA (F2)" styleClass="boton-clotho" style="-fx-font-size: 14px;"/>
+                <Button text="A CUENTA (F9)" styleClass="boton-clotho" style="-fx-font-size: 14px;"/>
+                <Button text="A PAGAR (F11)" styleClass="boton-clotho" style="-fx-font-size: 14px;"/>
+                <Button text="PAGADO (F12)" styleClass="boton-clotho" style="-fx-font-size: 14px;"/>
+            </children>
+        </HBox>
+    </bottom>
+
+</BorderPane>
