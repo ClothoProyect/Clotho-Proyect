@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 30px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #4CAF50; padding-bottom: 10px; }
+        .logo { width: 100px; height: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .footer { margin-top: 50px; font-size: 10px; text-align: right; color: #777; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reporte de Inventario</h1>
+        <p>Generado el: <span th:text="${fecha}">01/01/2025</span></p>
+    </div>
+
+    <h3>Datos del Cliente</h3>
+    <p>Nombre: <strong th:text="${cliente.nombre}">Nombre del Cliente</strong></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="prod : ${productos}">
+                <td th:text="${prod.nombre}">Producto</td>
+                <td th:text="${prod.cantidad}">0</td>
+                <td th:text="${prod.precio + ' €'}">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Documento generado automáticamente por Clotho Proy.</p>
+    </div>
+</body>
+</html>

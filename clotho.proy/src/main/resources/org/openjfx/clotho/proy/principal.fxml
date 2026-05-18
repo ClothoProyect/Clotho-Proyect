@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+	prefHeight="768.0" prefWidth="924.0" 
+	stylesheets="@estilo.css" styleClass="panel-principal"
+	xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.openjfx.clotho.proy.PrincipalController">
+   <top>
+      <VBox prefHeight="100.0" prefWidth="1024.0" BorderPane.alignment="CENTER">
+         <children>
+            <ToolBar prefHeight="40.0" prefWidth="200.0">
+              <items>
+                <Button mnemonicParsing="false" text="Buscar Ticket" 
+                onAction="#abrirVentanaPedidos" styleClass="boton-clotho"/>
+                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+        		text="Añadir Cliente" onAction="#abrirVentanaNuevoCliente" styleClass="boton-clotho" />
+                <Button mnemonicParsing="false" text="Salir" />
+              </items>
+            </ToolBar>
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <padding>
+                  <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+               </padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0" HBox.hgrow="ALWAYS">
+                     <Label text="Cliente:" style="-fx-font-weight: bold;"/>
+                     <ComboBox fx:id="cmbCliente" editable="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                  </HBox>
+                  
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <Label text="Teléfono:" style="-fx-font-weight: bold;"/>
+                     <ComboBox fx:id="cmbTelefono" editable="true" prefWidth="220.0"/>
+                  </HBox>
+
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <Label text="CIF:" style="-fx-font-weight: bold;"/>
+                     <ComboBox fx:id="cmbCIF" editable="true" prefWidth="220.0"/>
+                  </HBox>
+
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <Label text="Fecha:" style="-fx-font-weight: bold;"/>
+                     <DatePicker fx:id="fechaPedido" prefWidth="160"/>
+                  </HBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+	<center>
+      <VBox spacing="10.0" BorderPane.alignment="CENTER" >
+      <padding>
+            <Insets left="15.0" />
+		</padding>
+         <children>
+            <TableView fx:id="tablaDetalles" prefHeight="480.0" maxWidth="1220.0" BorderPane.alignment="CENTER"
+      styleClass="tabla-clotho">
+      <placeholder>
+        <Label text=""/>
+    </placeholder>
+    <columnResizePolicy>
+        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+    </columnResizePolicy>
+    <columns>
+        <TableColumn text="Servicio" minWidth="120.0" prefWidth="200.0" maxWidth="300.0">
+            <cellValueFactory>
+                <PropertyValueFactory property="servicio" />
+            </cellValueFactory>
+        </TableColumn>
+        
+        <TableColumn text="Precio" minWidth="120.0" prefWidth="120.0" maxWidth="140.0">
+		    <cellValueFactory>
+		        <PropertyValueFactory property="precioUnitario" />
+		    </cellValueFactory>
+		</TableColumn>
+        
+        <TableColumn text="Descripción">
+            <cellValueFactory>
+                <PropertyValueFactory property="descripcion" />
+            </cellValueFactory>
+        </TableColumn>
+        
+        </columns>
+	</TableView>
+	<HBox prefHeight="40.0" prefWidth="200.0" spacing="5.0" BorderPane.alignment="CENTER">
+         <children>
+         	<GridPane hgap="25.0" vgap="5.0">
+               <columnConstraints> 
+                  <ColumnConstraints halignment="CENTER" />
+                  <ColumnConstraints halignment="CENTER" />
+                  <ColumnConstraints halignment="CENTER" />
+               </columnConstraints>
+               <children>
+                  <Label text="Media por arreglo:"  GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                  <Label fx:id="txtMediaArreglos" text="0 €" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                  <Label fx:id="txtMesActual"  GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                  <Label fx:id="txtIngresosMes" text="0 €" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                  <Label fx:id="txtTicketMesActual"  GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                  <Label fx:id="txtTicketsCantidad" text="0 €" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+               </children>
+            </GridPane>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" text="Cancelar" 
+            onAction="#handleCancelar" styleClass="boton-clotho"/>
+            <Button mnemonicParsing="false" text="A Pagar" 
+            onAction="#handleAPagar" styleClass="boton-clotho"/>
+            <Button mnemonicParsing="false" text="Pagado" 
+            onAction="#handlePagado" styleClass="boton-clotho"/>
+         </children>
+         <padding>
+            <Insets bottom="0" left="30" right="0" top="0" />
+         </padding>
+      </HBox>
+	<GridPane fx:id="gridResumenSemana" gridLinesVisible="false" HBox.hgrow="ALWAYS">
+		<VBox.margin>
+                <Insets bottom="10.0" right="50"/>
+		</VBox.margin>
+	         <columnConstraints>
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	            <ColumnConstraints percentWidth="12.5" halignment="CENTER" />
+	         </columnConstraints>
+	         <rowConstraints>
+	            <RowConstraints minHeight="20.0" prefHeight="25.0" vgrow="SOMETIMES" />
+	            <RowConstraints minHeight="20.0" prefHeight="25.0" vgrow="SOMETIMES" />
+	            <RowConstraints minHeight="20.0" prefHeight="25.0" vgrow="SOMETIMES" />
+	            <RowConstraints minHeight="20.0" prefHeight="25.0" vgrow="SOMETIMES" />
+	            <RowConstraints minHeight="20.0" prefHeight="25.0" vgrow="SOMETIMES" />
+	         </rowConstraints>
+	         <children>
+	            <Label text="Pedidos"  GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+	            <Label text="Prendas"  GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+	            <Label text="Ingresos"  GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+	            
+	            <Label fx:id="primerDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+	            <Label fx:id="primerDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+	            <Label fx:id="primerDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+	            <Label fx:id="primerDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+	            <Label fx:id="primerDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+	
+	            <Label fx:id="segundoDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+	            <Label fx:id="segundoDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+	            <Label fx:id="segundoDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+	            <Label fx:id="segundoDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+	            <Label fx:id="segundoDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+	            
+	            <Label fx:id="tercerDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+	            <Label fx:id="tercerDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+	            <Label fx:id="tercerDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+	            <Label fx:id="tercerDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+	            <Label fx:id="tercerDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="3" GridPane.rowIndex="4"/>
+	            
+	            <Label fx:id="cuartoDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+	            <Label fx:id="cuartoDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+	            <Label fx:id="cuartoDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+	            <Label fx:id="cuartoDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="4" GridPane.rowIndex="3"/>
+	            <Label fx:id="cuartoDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="4" GridPane.rowIndex="4"/>
+	            
+	            <Label fx:id="quintoDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="5" GridPane.rowIndex="0"/>
+	            <Label fx:id="quintoDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="5" GridPane.rowIndex="1"/>
+	            <Label fx:id="quintoDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="5" GridPane.rowIndex="2"/>
+	            <Label fx:id="quintoDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="5" GridPane.rowIndex="3"/>
+	            <Label fx:id="quintoDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="5" GridPane.rowIndex="4"/>
+	            
+	            <Label fx:id="sextoDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="6" GridPane.rowIndex="0"/>
+	            <Label fx:id="sextoDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="6" GridPane.rowIndex="1"/>
+	            <Label fx:id="sextoDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="6" GridPane.rowIndex="2"/>
+	            <Label fx:id="sextoDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="6" GridPane.rowIndex="3"/>
+	            <Label fx:id="sextoDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="6" GridPane.rowIndex="4"/>
+	            
+	            <Label fx:id="septimoDia" styleClass="resumen-dia"
+	            maxWidth="Infinity" maxHeight="Infinity" onMouseClicked="#manejarClickResumen"
+	            GridPane.columnIndex="7" GridPane.rowIndex="0"/>
+	            <Label fx:id="septimoDiaFecha" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="7" GridPane.rowIndex="1"/>
+	            <Label fx:id="septimoDiaPedidos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="7" GridPane.rowIndex="2"/>
+	            <Label fx:id="septimoDiaPrendas" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="7" GridPane.rowIndex="3"/>
+	            <Label fx:id="septimoDiaIngresos" styleClass="resumen-dia" maxWidth="Infinity" maxHeight="Infinity"
+	            GridPane.columnIndex="7" GridPane.rowIndex="4"/>
+	            </children>
+	      </GridPane>
+         </children>
+      </VBox>
+   </center>
+   <right>
+      <VBox prefHeight="200.0" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="15" right="15.0" top="10.0" />
+         </padding>
+         <children>
+            <Label text="Nombre del Servicio" style="-fx-font-weight: bold;"/>
+            <ComboBox fx:id="cmbNombreServicio" editable="true" promptText="Servicio..." maxWidth="Infinity"/>
+            
+            <Label text="Precio (€)" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="txtPrecioServicio" promptText="Precio en euros"/>
+            
+            <Label text="Descuento" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="txtDescuento" promptText="Descuento %"/>
+            
+            <Label text="Descripción" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="txtDescripcionServicio" promptText="Detalles adicionales..."/>
+            
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                    text="Añadir al Ticket" onAction="#guardarServicio" styleClass="boton-clotho" />
+            <CheckBox fx:id="chkTarjeta" text="Con Tarjeta" styleClass="check-clotho"/>
+            <Button fx:id="btnImpresionCompleta" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+			        text="Imprimir Ticket&#10;Impresión completa" textAlignment="CENTER" 
+			        onAction="#ImprimirTicketCompleto" styleClass="boton-clotho"/>
+			        
+			<Button fx:id="btnImpresionSimple" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+			        text="Imprimir Ticket&#10;Impresión simple" textAlignment="CENTER" 
+			        onAction="#ImprimirTicketSimple" styleClass="boton-clotho"/>
+         </children>
+      </VBox>
+   </right>
+</BorderPane>

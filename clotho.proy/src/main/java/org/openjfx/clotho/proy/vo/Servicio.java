@@ -12,14 +12,8 @@ public class Servicio {
 	@Column(name = "identificador", nullable = true)
 	private int identificador;
 
-	@Column(name = "nombre", nullable = true)
+	@Column(name = "nombre", nullable = true, unique = true)
 	private String nombre;
-	
-	@Column(name = "descripcion", nullable = true)
-	private String descripcion;
-	
-	@Column(name = "precio", nullable = true)
-	private float precio;
 
 	public int getIdentificador() {
 		return identificador;
@@ -37,20 +31,8 @@ public class Servicio {
 		this.nombre = nombre;
 	}
 
-	public String getDescripcion() {
-		return descripcion;
+	@Override
+	public String toString() {
+		return this.nombre;
 	}
-
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	public float getPrecio() {
-		return precio;
-	}
-
-	public void setPrecio(float precio) {
-		this.precio = precio;
-	}
-
 }

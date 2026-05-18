@@ -1,5 +1,5 @@
 .root {
-	-fx-font-size: 15px;
+	-fx-font-size: 18px;
 	-fx-font-weight: bold;
 }
 
@@ -31,4 +31,21 @@
 
 .tabla-clotho {
     -fx-control-inner-background: #bdc3c7;
+}
+
+.resumen-dia {
+	-fx-background-color: #bdc3c7;
+	-fx-background-insets: 2px, 2px;
+    -fx-background-radius: 5px, 4px;
+	-fx-alignment: center;
+}
+
+.cabecera-dia {
+}
+
+.resumen-selecionado {
+    -fx-background-color: #de569f;
+	-fx-background-insets: 2px, 2px;
+    -fx-background-radius: 5px, 4px;
+	-fx-alignment: center;
 }

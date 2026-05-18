@@ -1,10 +1,14 @@
 package org.openjfx.clotho.proy;
 
+import java.util.function.UnaryOperator;
+
 import org.openjfx.clotho.proy.dao.hbnt.ClienteDaoHBNT;
 import org.openjfx.clotho.proy.exception.ProyectoClothoException;
 import org.openjfx.clotho.proy.vo.Cliente;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
 
 public class SecondaryController {
@@ -18,9 +22,23 @@ public class SecondaryController {
 	@FXML private TextField txtCodigoPostal;
 	@FXML private TextField txtNotasAdicionales;
 
-	private PrimaryController controladorPrincipal;
+	private PrincipalController controladorPrincipal;
+	
+	@FXML
+	public void initialize() {
+		UnaryOperator<TextFormatter.Change> filtroMayusculas = cambio -> {
+			cambio.setText(cambio.getText().toUpperCase());
+			return cambio;
+		};
 
-	public void setControladorPrincipal(PrimaryController principal) {
+		txtNombre.setTextFormatter(new TextFormatter<>(filtroMayusculas));
+		txtApellidos.setTextFormatter(new TextFormatter<>(filtroMayusculas));
+		txtCIF.setTextFormatter(new TextFormatter<>(filtroMayusculas));
+		txtDireccion.setTextFormatter(new TextFormatter<>(filtroMayusculas));
+		txtNotasAdicionales.setTextFormatter(new TextFormatter<>(filtroMayusculas));
+	}
+
+	public void setControladorPrincipal(PrincipalController principal) {
 		this.controladorPrincipal = principal;
 	}
 

@@ -21,6 +21,9 @@ public class Factura {
 	@Column(name = "fecha", nullable = true)
 	private LocalDate fecha;
 	
+	@Column(name = "serial", nullable = true)
+	private String serial;
+	
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "identificador_pedido", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_FACTURA_PEDIDO"))
 	private Pedido pedido;

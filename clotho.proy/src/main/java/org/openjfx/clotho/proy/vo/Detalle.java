@@ -12,21 +12,36 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "T_DETALLE")
 public class Detalle {
-	
+
 	@Id
 	@Column(name = "identificador", nullable = true)
 	private int identificador;
-	
+
 	@Column(name = "precio_unitario", nullable = true)
 	private float precioUnitario;
-	
+
+	@Column(name = "descripcion", nullable = true)
+	private String descripcion;
+
 	@ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "identificador_pedido", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_DETALLE_PEDIDO"))
+	@JoinColumn(name = "identificador_pedido", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_DETALLE_PEDIDO"))
 	private Pedido pedido;
-	
-	@ManyToOne(fetch = FetchType.EAGER) 
-    @JoinColumn(name = "identificador_servicio", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_DETALLE_SERVICIO"))
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "identificador_servicio", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_DETALLE_SERVICIO"))
 	private Servicio servicio;
+
+	public Detalle() {
+		super();
+	}
+
+	public Detalle(int identificador, float precioUnitario, Pedido pedido, Servicio servicio) {
+		super();
+		this.identificador = identificador;
+		this.precioUnitario = precioUnitario;
+		this.pedido = pedido;
+		this.servicio = servicio;
+	}
 
 	public int getIdentificador() {
 		return identificador;
@@ -58,5 +73,13 @@ public class Detalle {
 
 	public void setServicio(Servicio servicio) {
 		this.servicio = servicio;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
 	}
 }

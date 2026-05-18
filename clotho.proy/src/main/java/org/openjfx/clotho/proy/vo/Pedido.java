@@ -30,8 +30,11 @@ public class Pedido {
 	@Column(name = "pago_con_tarjeta", nullable = true)
 	private boolean pagoConTarjeta;
 
-	@Column(name = "precio", nullable = true)
-	private float precio;
+	@Column(name = "precio_total", nullable = true)
+	private float precioTotal;
+	
+	@Column(name = "adelanto", nullable = true)
+	private float adelanto;
 
 	@Column(name = "estado", nullable = true)
 	@Enumerated(EnumType.STRING)
@@ -74,11 +77,11 @@ public class Pedido {
 	}
 
 	public float getPrecio() {
-		return precio;
+		return precioTotal;
 	}
 
 	public void setPrecio(float precio) {
-		this.precio = precio;
+		this.precioTotal = precio;
 	}
 
 	public EstadoPedido getEstado() {

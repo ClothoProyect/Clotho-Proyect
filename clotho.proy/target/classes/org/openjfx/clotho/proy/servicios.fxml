@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
 
 <VBox prefWidth="500.0" prefHeight="500.0" spacing="10.0" alignment="CENTER_LEFT" 
     xmlns="http://javafx.com/javafx/8.0.171" 
@@ -16,7 +17,7 @@
     <Label text="" style="-fx-font-weight: bold;" fx:id="lblAnuncio"/>
     
     <Label text="Nombre del Servicio" style="-fx-font-weight: bold;"/>
-    <TextField fx:id="txtNombreServicio" promptText="Servicio a ofrecer"/>
+    <ComboBox fx:id="cmbNombreServicio" editable="true" promptText="Seleccione o escriba un servicio" maxWidth="Infinity"/>
     
     <Label text="Precio (€)" style="-fx-font-weight: bold;"/>
     <TextField fx:id="txtPrecioServicio" promptText="Precio en euros"/>

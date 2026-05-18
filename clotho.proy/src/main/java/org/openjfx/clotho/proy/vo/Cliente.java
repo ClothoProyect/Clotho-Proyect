@@ -50,6 +50,10 @@ public class Cliente {
 	public String getNombre() {
 		return nombre;
 	}
+	
+	public String getNombreCompleto() {
+		return nombre + " " + apellidos;
+	}
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
@@ -110,4 +114,12 @@ public class Cliente {
 	public void setNotasAdicionales(String notasAdicionales) {
 		this.notasAdicionales = notasAdicionales;
 	}
+	
+	@Override
+    public String toString() {
+        if (this.apellidos != null) {
+            return this.nombre + " " + this.apellidos;
+        }
+        return this.nombre;
+    }
 }
