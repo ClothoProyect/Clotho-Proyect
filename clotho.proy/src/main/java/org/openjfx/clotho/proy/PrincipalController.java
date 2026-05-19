@@ -43,6 +43,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
@@ -54,76 +55,81 @@ public class PrincipalController {
 	private Integer ultimaColumnaSeleccionada = 0;
 	private ClienteDAO clienteDao = new ClienteDaoHBNT();
 	private ObservableList<Cliente> clientesObs;
-
-	// CAMBIO 1: La lista ahora guarda Detalles
 	private List<Detalle> listaDetalles = new ArrayList<Detalle>();
-
 	private ObjectProperty<Cliente> clienteActual = new SimpleObjectProperty<>();
 	private ObjectProperty<EstadoPedido> estado = new SimpleObjectProperty<>(EstadoPedido.Sin_Pagar);
-
+	private ServicioDaoHBNT servicioHBNT = new ServicioDaoHBNT();
+	private ObservableList<Servicio> serviciosObs;
+	private boolean sincronizandoCliente = false;
+	
 	@FXML
 	private CheckBox chkTarjeta;
+	
 	@FXML
 	private Button btnImpresionCompleta;
+	
 	@FXML
 	private Button btnImpresionSimple;
 
-	// --- NUEVAS VARIABLES DEL FORMULARIO DE SERVICIOS ---
 	@FXML
 	private ComboBox<Servicio> cmbNombreServicio;
+
 	@FXML
 	private TextField txtPrecioServicio;
+	
 	@FXML
 	private TextField txtDescripcionServicio;
+	
 	@FXML
 	private TextField txtDescuento;
-
-	private ServicioDaoHBNT servicioHBNT = new ServicioDaoHBNT();
-	private ObservableList<Servicio> serviciosObs;
 
 	@FXML
 	private TableView<Detalle> tablaDetalles;
 
 	@FXML
 	private ComboBox<Cliente> cmbCliente;
+	
 	@FXML
 	private ComboBox<Cliente> cmbTelefono;
+	
 	@FXML
 	private ComboBox<Cliente> cmbCIF;
 
-	private boolean sincronizandoCliente = false;
-
 	@FXML
 	private DatePicker fechaPedido;
+	
 	@FXML
 	private GridPane gridResumenSemana;
 
 	@FXML
 	private Label txtMesActual;
+	
 	@FXML
 	private Label txtTicketMesActual;
 	
 	@FXML
 	private Label txtMediaArreglos;
+	
 	@FXML
 	private Label txtTicketsCantidad;
+	
 	@FXML
 	private Label txtIngresosMes;
 
 	@FXML
 	private Label primerDia, segundoDia, tercerDia, cuartoDia, quintoDia, sextoDia, septimoDia;
+	
 	@FXML
-	private Label primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha, sextoDiaFecha,
-			septimoDiaFecha;
+	private Label primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha, sextoDiaFecha, septimoDiaFecha;
+	
 	@FXML
-	private Label primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos, quintoDiaPedidos,
-			sextoDiaPedidos, septimoDiaPedidos;
+	private Label primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos, quintoDiaPedidos, sextoDiaPedidos, septimoDiaPedidos;
+	
 	@FXML
-	private Label primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas, quintoDiaPrendas,
-			sextoDiaPrendas, septimoDiaPrendas;
+	private Label primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas, quintoDiaPrendas, sextoDiaPrendas, septimoDiaPrendas;
+	
 	@FXML
-	private Label primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos, quintoDiaIngresos,
-			sextoDiaIngresos, septimoDiaIngresos;
+	private Label primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos, quintoDiaIngresos, sextoDiaIngresos, septimoDiaIngresos;
 
 	@FXML
 	public void initialize() {
@@ -131,7 +137,6 @@ public class PrincipalController {
 		mes = mes.substring(0, 1).toUpperCase() + mes.substring(1);
 		txtMesActual.setText("Ingresos de " + mes);
 		txtTicketMesActual.setText("Tickets de " + mes);
-		// (Al final del initialize()...)
 		UnaryOperator<TextFormatter.Change> filtroMayusculas = cambio -> {
 			cambio.setText(cambio.getText().toUpperCase());
 			return cambio;
@@ -415,11 +420,19 @@ public class PrincipalController {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("cliente.fxml"));
 			Parent root = loader.load();
-			SecondaryController controllerHijo = loader.getController();
+			ClientesController controllerHijo = loader.getController();
 			controllerHijo.setControladorPrincipal(this);
 
+			Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
+			
 			Stage stage = new Stage();
-			stage.setTitle("Clientes");
+			
+			stage.setOnHidden(windowEvent -> {
+	            refrescarListaClientes();
+	        });
+			
+			stage.setTitle("Gestion de clientes");
+			stage.getIcons().add(icono);
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.setScene(new Scene(root));
 			stage.show();
@@ -436,8 +449,11 @@ public class PrincipalController {
 			ServiciosController controller = loader.getController();
 			controller.setControladorPrincipal(this);
 
+			Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
+			
 			Stage stage = new Stage();
-			stage.setTitle("Servicio");
+			stage.setTitle("Gestion de servicios");
+			stage.getIcons().add(icono);
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.setScene(new Scene(root));
 			stage.show();
@@ -454,8 +470,11 @@ public class PrincipalController {
 
 			PedidosController controller = loader.getController();
 
+			Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
+			
 			Stage stage = new Stage();
 			stage.setTitle("Búsqueda de Tickets");
+			stage.getIcons().add(icono);
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.setScene(new Scene(root));
 			stage.show();
@@ -525,23 +544,19 @@ public class PrincipalController {
 			pedido.setIdentificador(pedidoDAO.obtenerUltimoIdentificador() + 1);
 			pedido.setCodigoPedido(pedidoDAO.obtenerUltimoCodigoPedido() + 1);
 
-			// CAMBIO 5: Calculamos el precio basándonos en los Detalles
 			float precio = 0f;
 			for (Detalle detalleActual : listaDetalles) {
 				precio += detalleActual.getPrecioUnitario();
-				// NOTA: Si en el futuro añades cantidad, sería precioUnitario * cantidad
 			}
 
 			pedido.setPrecio(precio);
 			pedidoDAO.crearEntidad(pedido);
 
-			// CAMBIO 6: Guardamos los detalles que ya están en la lista
 			int idDetalleContador = detalleDao.obtenerUltimoIdentificador();
 			for (Detalle detalle : listaDetalles) {
 				idDetalleContador++;
 				detalle.setIdentificador(idDetalleContador);
 				detalle.setPedido(pedido);
-				// El servicio y el precio ya se asignaron en recibirDatosServicio()
 				detalleDao.crearEntidad(detalle);
 			}
 
@@ -621,14 +636,10 @@ public class PrincipalController {
 
 	public void actualizaResumenSemanal() {
 		Label[] labelsDias = { primerDia, segundoDia, tercerDia, cuartoDia, quintoDia, sextoDia, septimoDia };
-		Label[] labelsFechas = { primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha,
-				sextoDiaFecha, septimoDiaFecha };
-		Label[] labelsPedidos = { primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos,
-				quintoDiaPedidos, sextoDiaPedidos, septimoDiaPedidos };
-		Label[] labelsPrendas = { primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas,
-				quintoDiaPrendas, sextoDiaPrendas, septimoDiaPrendas };
-		Label[] labelsIngresos = { primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos,
-				quintoDiaIngresos, sextoDiaIngresos, septimoDiaIngresos };
+		Label[] labelsFechas = { primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha, sextoDiaFecha, septimoDiaFecha };
+		Label[] labelsPedidos = { primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos, quintoDiaPedidos, sextoDiaPedidos, septimoDiaPedidos };
+		Label[] labelsPrendas = { primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas, quintoDiaPrendas, sextoDiaPrendas, septimoDiaPrendas };
+		Label[] labelsIngresos = { primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos, quintoDiaIngresos, sextoDiaIngresos, septimoDiaIngresos };
 
 		DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
 
@@ -649,11 +660,12 @@ public class PrincipalController {
 			String nombreDia = fechaCalculada.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
 			String cantidadPedidos = "";
 			String cantidadPrendas = "";
-			String ingresosPedidos = "";
+			String ingresosPedidos = "0,00 €";
 			try {
 				cantidadPedidos = String.valueOf(detalleDao.obtenerPedidosPorDia(fechaCalculada));
-				ingresosPedidos = String.valueOf(detalleDao.obtenerIngresosPorDia(fechaCalculada));
+				ingresosPedidos = String.format(new Locale("es", "ES"), "%.2f €", detalleDao.obtenerIngresosPorDia(fechaCalculada));
 				cantidadPrendas = String.valueOf(detalleDao.obtenerPrendasPorDia(fechaCalculada));
+				System.out.println(ingresosPedidos);
 			} catch (ProyectoClothoException e) {
 				e.printStackTrace();
 			}
@@ -664,5 +676,18 @@ public class PrincipalController {
 			labelsPrendas[i].setText(cantidadPrendas);
 			labelsIngresos[i].setText(ingresosPedidos);
 		}
+	}
+	
+	public void refrescarListaClientes() {
+	    try {
+	        List<Cliente> listaActualizada = clienteDao.obtenerListaTodasEntidades();
+	        
+	        if (clientesObs != null) {
+	            clientesObs.clear();
+	            clientesObs.addAll(listaActualizada);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 }

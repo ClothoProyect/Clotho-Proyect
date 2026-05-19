@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
 import org.openjfx.clotho.proy.dao.ClienteDAO;
 import org.openjfx.clotho.proy.exception.ProyectoClothoException;
@@ -135,5 +136,31 @@ public class ClienteDaoHBNT implements ClienteDAO {
 		} catch (Exception e) {
 			throw new ProyectoClothoException(new Exception("No se ha encontrado ningun registro en la Cliente de datos"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
 		}
+	}
+
+	@Override
+	public Long contarTicketsPorCliente(int identificadorCliente) {
+		Long cantidad = 0l;
+		Session session = null;
+		
+		try {
+			session = GestorSesionesHibernate.getSession();
+			
+			String hql = "SELECT count(p) FROM Pedido p WHERE p.cliente.identificador = :id";
+			
+			Query<Long> query = session.createQuery(hql, Long.class);
+			query.setParameter("id", identificadorCliente);
+			
+			cantidad = query.uniqueResult();
+		} catch (Exception e) {
+			System.err.println("Error al contar los tickets del cliente: " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+			}
+		}
+		
+		return cantidad;
 	}
 }

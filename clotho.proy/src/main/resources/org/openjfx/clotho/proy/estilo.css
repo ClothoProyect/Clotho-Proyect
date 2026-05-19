@@ -15,8 +15,19 @@
     -fx-text-fill: white;
 }
 
+.boton-clotho-rojo {
+	-fx-background-color: #d32f2f;
+	-fx-background-insets: 0, 2px;
+    -fx-background-radius: 5px, 4px;
+}
+
 .boton-clotho:hover {
     -fx-background-color: #2c3e50, #de569f;
+}
+
+.boton-clotho-rojo {
+	-fx-background-color: #e74c3c;
+	-fx-text-fill: white;
 }
 
 .check-clotho:selected .box {

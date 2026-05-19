@@ -51,6 +51,7 @@
                 <VBox spacing="2">
                     <Label text="Desde"/>
                     <DatePicker fx:id="dpFiltroDesde" prefWidth="160"/>
+                    <Label fx:id="lblAlerta"/>
                 </VBox>
 
                 <VBox spacing="2">
@@ -120,9 +121,8 @@
                     	<padding>
 	                        <Insets bottom="0" left="0" right="0" top="10" />
 	                    </padding>
-                        <Button text="Ticket Retirado" maxWidth="Infinity" styleClass="boton-clotho"/>
-                        <Button text="Ticket Anular" maxWidth="Infinity" styleClass="boton-clotho"/>
-                        <Button text="Cambiar fecha" maxWidth="Infinity" styleClass="boton-clotho"/>
+                        <Button text="Retirar Ticket" onAction="#handleRetirarTicket" maxWidth="Infinity" styleClass="boton-clotho"/>
+                        <Button text="Anular Ticket" onAction="#handleAnularTicket" maxWidth="Infinity" styleClass="boton-clotho"/>
                         <Button text="Reimprimir" onAction="#reimprimirTicket" maxWidth="Infinity" styleClass="boton-clotho"/>
                         <CheckBox fx:id="chkImprimirMarcas" text="Reimprimir Arreglos" wrapText="true"/>
                         <Region VBox.vgrow="ALWAYS" /> 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
 import org.openjfx.clotho.proy.dao.FacturaDAO;
 import org.openjfx.clotho.proy.exception.ProyectoClothoException;
@@ -147,4 +148,45 @@ public class FacturaDaoHBNT implements FacturaDAO {
 		}
 	}
 
+	@Override
+	public boolean confirmarExistenciaTicket(int identificadorPedido) throws ProyectoClothoException {
+		boolean existe = false;
+
+		try (Session sesion = GestorSesionesHibernate.getSession();) {
+			
+			String hql = "SELECT count(f) FROM Factura f WHERE f.pedido.identificador = :idPedido";
+			
+			Query<Long> query = sesion.createQuery(hql, Long.class);
+			query.setParameter("idPedido", identificadorPedido);
+			
+			Long cantidad = query.uniqueResult();
+			
+			if (cantidad != null && cantidad > 0) {
+				existe = true;
+			}
+			
+		} catch (Exception e) {
+			throw new ProyectoClothoException(e, this.getClass(), 2);
+		}
+		return existe;
+	}
+	
+	@Override
+	public Factura obtenerFacturaPorTicket(int identificadorTicket) throws ProyectoClothoException {
+		Factura facturaEncontrada = null;
+
+		try (Session sesion = GestorSesionesHibernate.getSession();) {
+			String hql = "SELECT f FROM Factura f WHERE f.pedido.identificador = :idTicket";
+			
+			Query<Factura> query = sesion.createQuery(hql, Factura.class);
+			query.setParameter("idTicket", identificadorTicket);
+			
+			facturaEncontrada = query.uniqueResult();
+			
+		} catch (Exception e) {
+			throw new ProyectoClothoException(e, this.getClass(), 2);
+		}
+		
+		return facturaEncontrada;
+	}
 }

@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -17,9 +18,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+    	Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
+
         scene = new Scene(loadFXML("principal"), 640, 480);
-        stage.setScene(scene);
+
+    	// Se la asignamos a la ventana
         stage.setTitle("Clotho");
+        stage.getIcons().add(icono);
+        stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
         

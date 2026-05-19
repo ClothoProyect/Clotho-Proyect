@@ -5,4 +5,6 @@ import org.openjfx.clotho.proy.vo.Factura;
 
 public interface FacturaDAO extends IOperacionesDAOEntidad<Factura, Integer> {
 	int obtenerUltimoCodigoPedido() throws ProyectoClothoException;
+	boolean confirmarExistenciaTicket(int identificador) throws ProyectoClothoException;
+	Factura obtenerFacturaPorTicket(int identificadorTicket) throws ProyectoClothoException;
 }

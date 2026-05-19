@@ -34,7 +34,7 @@
                 <Button mnemonicParsing="false" text="Buscar Ticket" 
                 onAction="#abrirVentanaPedidos" styleClass="boton-clotho"/>
                 <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-        		text="Añadir Cliente" onAction="#abrirVentanaNuevoCliente" styleClass="boton-clotho" />
+        		text="Gestionar Clientes" onAction="#abrirVentanaNuevoCliente" styleClass="boton-clotho" />
                 <Button mnemonicParsing="false" text="Salir" />
               </items>
             </ToolBar>
