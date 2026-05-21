@@ -61,13 +61,13 @@ public class PrincipalController {
 	private ServicioDaoHBNT servicioHBNT = new ServicioDaoHBNT();
 	private ObservableList<Servicio> serviciosObs;
 	private boolean sincronizandoCliente = false;
-	
+
 	@FXML
 	private CheckBox chkTarjeta;
-	
+
 	@FXML
 	private Button btnImpresionCompleta;
-	
+
 	@FXML
 	private Button btnImpresionSimple;
 
@@ -76,10 +76,10 @@ public class PrincipalController {
 
 	@FXML
 	private TextField txtPrecioServicio;
-	
+
 	@FXML
 	private TextField txtDescripcionServicio;
-	
+
 	@FXML
 	private TextField txtDescuento;
 
@@ -88,48 +88,52 @@ public class PrincipalController {
 
 	@FXML
 	private ComboBox<Cliente> cmbCliente;
-	
+
 	@FXML
 	private ComboBox<Cliente> cmbTelefono;
-	
+
 	@FXML
 	private ComboBox<Cliente> cmbCIF;
 
 	@FXML
 	private DatePicker fechaPedido;
-	
+
 	@FXML
 	private GridPane gridResumenSemana;
 
 	@FXML
 	private Label txtMesActual;
-	
+
 	@FXML
 	private Label txtTicketMesActual;
-	
+
 	@FXML
 	private Label txtMediaArreglos;
-	
+
 	@FXML
 	private Label txtTicketsCantidad;
-	
+
 	@FXML
 	private Label txtIngresosMes;
 
 	@FXML
 	private Label primerDia, segundoDia, tercerDia, cuartoDia, quintoDia, sextoDia, septimoDia;
-	
+
 	@FXML
-	private Label primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha, sextoDiaFecha, septimoDiaFecha;
-	
+	private Label primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha, sextoDiaFecha,
+			septimoDiaFecha;
+
 	@FXML
-	private Label primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos, quintoDiaPedidos, sextoDiaPedidos, septimoDiaPedidos;
-	
+	private Label primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos, quintoDiaPedidos,
+			sextoDiaPedidos, septimoDiaPedidos;
+
 	@FXML
-	private Label primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas, quintoDiaPrendas, sextoDiaPrendas, septimoDiaPrendas;
-	
+	private Label primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas, quintoDiaPrendas,
+			sextoDiaPrendas, septimoDiaPrendas;
+
 	@FXML
-	private Label primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos, quintoDiaIngresos, sextoDiaIngresos, septimoDiaIngresos;
+	private Label primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos, quintoDiaIngresos,
+			sextoDiaIngresos, septimoDiaIngresos;
 
 	@FXML
 	public void initialize() {
@@ -163,7 +167,7 @@ public class PrincipalController {
 			}
 		});
 	}
-	
+
 	private void procesarImpresionFisica(boolean esCompleto) {
 		// 1. Validamos que haya datos listos para imprimir
 		if (clienteActual.get() == null || listaDetalles.isEmpty() || estado.get() == null) {
@@ -172,23 +176,28 @@ public class PrincipalController {
 		}
 
 		try {
-			// 2. Construimos un "Pedido temporal" con la info de la pantalla para dárselo a la impresora
+			// 2. Construimos un "Pedido temporal" con la info de la pantalla para dárselo a
+			// la impresora
 			PedidoDaoHBNT pedidoDAO = new PedidoDaoHBNT();
 			Pedido pedidoAImprimir = new Pedido();
-			
+
 			pedidoAImprimir.setCliente(clienteActual.get());
-			
-			// Si por algún motivo la fecha está vacía, usamos la de hoy para que no falle la impresión
+
+			// Si por algún motivo la fecha está vacía, usamos la de hoy para que no falle
+			// la impresión
 			pedidoAImprimir.setFecha(fechaPedido.getValue() != null ? fechaPedido.getValue() : LocalDate.now());
-			
-			// Predecimos cuál va a ser su número de ticket calculándolo igual que lo hace procesarPedido()
+
+			// Predecimos cuál va a ser su número de ticket calculándolo igual que lo hace
+			// procesarPedido()
 			pedidoAImprimir.setCodigoPedido(pedidoDAO.obtenerUltimoCodigoPedido() + 1);
 
-			// 3. Imprimimos el ticket pasándole la lista de detalles que está en memoria (en la tabla visual)
+			// 3. Imprimimos el ticket pasándole la lista de detalles que está en memoria
+			// (en la tabla visual)
 			TicketPrinterService printerService = new TicketPrinterService();
 			printerService.imprimir(pedidoAImprimir, listaDetalles, esCompleto);
 
-			// 4. ¡Listo! Ahora que ya ha salido el papel, lo guardamos en la base de datos y limpiamos la pantalla
+			// 4. ¡Listo! Ahora que ya ha salido el papel, lo guardamos en la base de datos
+			// y limpiamos la pantalla
 			procesarPedido();
 
 		} catch (Exception e) {
@@ -196,23 +205,24 @@ public class PrincipalController {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void actualizarResumenMensual() {
 		try {
 			DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
-			
+
 			// 1. Obtener la media mensual
 			float mediaArreglos = detalleDao.obtenerMediaMensualPorArreglo();
 			txtMediaArreglos.setText(String.format(new Locale("es", "ES"), "%.2f €", mediaArreglos));
-			
+
 			// 2. Obtener el total de ingresos mensuales
 			float ingresosMensuales = detalleDao.obtenerTotalMensual();
 			txtIngresosMes.setText(String.format(new Locale("es", "ES"), "%.2f €", ingresosMensuales));
-			
-			// 3. Obtener el total de tickets del mes (le pasamos la fecha actual como pedía tu método)
+
+			// 3. Obtener el total de tickets del mes (le pasamos la fecha actual como pedía
+			// tu método)
 			int cantidadTickets = detalleDao.obtenerCantidadMensualTickets(LocalDate.now());
 			txtTicketsCantidad.setText(String.valueOf(cantidadTickets));
-			
+
 		} catch (ProyectoClothoException e) {
 			System.err.println("Error al actualizar las estadísticas mensuales.");
 			e.printStackTrace();
@@ -304,6 +314,20 @@ public class PrincipalController {
 		btnImpresionSimple.visibleProperty().bind(
 				clienteActual.isNotNull().and(estado.isNotNull()).and(Bindings.isNotEmpty(tablaDetalles.getItems())));
 		btnImpresionSimple.managedProperty().bind(btnImpresionSimple.visibleProperty());
+
+		// Reglas para el botón de Impresión Simple
+		btnImpresionSimple.visibleProperty().bind(
+				clienteActual.isNotNull().and(estado.isNotNull()).and(Bindings.isNotEmpty(tablaDetalles.getItems())));
+		btnImpresionSimple.managedProperty().bind(btnImpresionSimple.visibleProperty());
+
+		// Reglas para el checkbox de tarjeta
+		chkTarjeta.visibleProperty().bind(estado.isEqualTo(EstadoPedido.Pagado));
+		chkTarjeta.managedProperty().bind(chkTarjeta.visibleProperty());
+		estado.addListener((obs, oldVal, newVal) -> {
+			if (newVal != EstadoPedido.Pagado) {
+				chkTarjeta.setSelected(false);
+			}
+		});
 	}
 
 	private void cargaListaServicios() {
@@ -332,16 +356,24 @@ public class PrincipalController {
 							});
 				}
 			});
+
+			cmbNombreServicio.valueProperty().addListener((obs, oldVal, newVal) -> {
+				if (newVal != null) {
+					txtPrecioServicio.setText(String.format(Locale.US, "%.2f", newVal.getPrecioEstandar()));
+				} else {
+					txtPrecioServicio.clear();
+				}
+			});
 		} catch (ProyectoClothoException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@FXML
 	public void ImprimirTicketCompleto() {
 		procesarPedido();
 	}
-	
+
 	@FXML
 	public void ImprimirTicketSimple() {
 		procesarPedido();
@@ -416,7 +448,7 @@ public class PrincipalController {
 	}
 
 	@FXML
-	private void abrirVentanaNuevoCliente() {
+	private void abrirVentanaClientes() {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("cliente.fxml"));
 			Parent root = loader.load();
@@ -424,13 +456,13 @@ public class PrincipalController {
 			controllerHijo.setControladorPrincipal(this);
 
 			Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
-			
+
 			Stage stage = new Stage();
-			
+
 			stage.setOnHidden(windowEvent -> {
-	            refrescarListaClientes();
-	        });
-			
+				refrescarListaClientes();
+			});
+
 			stage.setTitle("Gestion de clientes");
 			stage.getIcons().add(icono);
 			stage.initModality(Modality.APPLICATION_MODAL);
@@ -450,12 +482,16 @@ public class PrincipalController {
 			controller.setControladorPrincipal(this);
 
 			Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
-			
+
 			Stage stage = new Stage();
 			stage.setTitle("Gestion de servicios");
 			stage.getIcons().add(icono);
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.setScene(new Scene(root));
+			// Renovar la lista de Servicios en la vista de principal al cerrar la ventana
+			stage.setOnHidden(windowEvent -> {
+				cargaListaServicios();
+			});
 			stage.show();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -471,7 +507,7 @@ public class PrincipalController {
 			PedidosController controller = loader.getController();
 
 			Image icono = new Image(getClass().getResourceAsStream("/imagenes/Clotho.png"));
-			
+
 			Stage stage = new Stage();
 			stage.setTitle("Búsqueda de Tickets");
 			stage.getIcons().add(icono);
@@ -636,10 +672,14 @@ public class PrincipalController {
 
 	public void actualizaResumenSemanal() {
 		Label[] labelsDias = { primerDia, segundoDia, tercerDia, cuartoDia, quintoDia, sextoDia, septimoDia };
-		Label[] labelsFechas = { primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha, sextoDiaFecha, septimoDiaFecha };
-		Label[] labelsPedidos = { primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos, quintoDiaPedidos, sextoDiaPedidos, septimoDiaPedidos };
-		Label[] labelsPrendas = { primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas, quintoDiaPrendas, sextoDiaPrendas, septimoDiaPrendas };
-		Label[] labelsIngresos = { primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos, quintoDiaIngresos, sextoDiaIngresos, septimoDiaIngresos };
+		Label[] labelsFechas = { primerDiaFecha, segundoDiaFecha, tercerDiaFecha, cuartoDiaFecha, quintoDiaFecha,
+				sextoDiaFecha, septimoDiaFecha };
+		Label[] labelsPedidos = { primerDiaPedidos, segundoDiaPedidos, tercerDiaPedidos, cuartoDiaPedidos,
+				quintoDiaPedidos, sextoDiaPedidos, septimoDiaPedidos };
+		Label[] labelsPrendas = { primerDiaPrendas, segundoDiaPrendas, tercerDiaPrendas, cuartoDiaPrendas,
+				quintoDiaPrendas, sextoDiaPrendas, septimoDiaPrendas };
+		Label[] labelsIngresos = { primerDiaIngresos, segundoDiaIngresos, tercerDiaIngresos, cuartoDiaIngresos,
+				quintoDiaIngresos, sextoDiaIngresos, septimoDiaIngresos };
 
 		DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
 
@@ -663,9 +703,9 @@ public class PrincipalController {
 			String ingresosPedidos = "0,00 €";
 			try {
 				cantidadPedidos = String.valueOf(detalleDao.obtenerPedidosPorDia(fechaCalculada));
-				ingresosPedidos = String.format(new Locale("es", "ES"), "%.2f €", detalleDao.obtenerIngresosPorDia(fechaCalculada));
+				ingresosPedidos = String.format(new Locale("es", "ES"), "%.2f €",
+						detalleDao.obtenerIngresosPorDia(fechaCalculada));
 				cantidadPrendas = String.valueOf(detalleDao.obtenerPrendasPorDia(fechaCalculada));
-				System.out.println(ingresosPedidos);
 			} catch (ProyectoClothoException e) {
 				e.printStackTrace();
 			}
@@ -677,17 +717,17 @@ public class PrincipalController {
 			labelsIngresos[i].setText(ingresosPedidos);
 		}
 	}
-	
+
 	public void refrescarListaClientes() {
-	    try {
-	        List<Cliente> listaActualizada = clienteDao.obtenerListaTodasEntidades();
-	        
-	        if (clientesObs != null) {
-	            clientesObs.clear();
-	            clientesObs.addAll(listaActualizada);
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		try {
+			List<Cliente> listaActualizada = clienteDao.obtenerListaTodasEntidades();
+
+			if (clientesObs != null) {
+				clientesObs.clear();
+				clientesObs.addAll(listaActualizada);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

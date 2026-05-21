@@ -22,7 +22,6 @@ public class App extends Application {
 
         scene = new Scene(loadFXML("principal"), 640, 480);
 
-    	// Se la asignamos a la ventana
         stage.setTitle("Clotho");
         stage.getIcons().add(icono);
         stage.setScene(scene);

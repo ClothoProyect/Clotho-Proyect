@@ -90,7 +90,7 @@
             </tr>
             <tr>
                 <td>IVA</td>
-                <td>%21</td>
+                <td th:text="${iva} + ' %'">21%</td>
                 <td class="right-align" th:text="${totales.totalIva} + ' €'">0 €</td>
             </tr>
             <tr class="total-row">

@@ -33,8 +33,6 @@ public class TicketPrinterService {
 	private static final byte[] ALINEAR_DER = { 0x1B, 0x61, 2 };
 	private static final byte[] TAMANYO_NORMAL = { 0x1B, 0x21, 0x00 };
 	private static final byte[] DOBLE_ALTO = { 0x1B, 0x21, 0x10 };
-	
-	// COMANDO ESTRELLA: Avanza exactamente 7 líneas (distancia física hasta la cuchilla) y corta.
 	private static final byte[] AVANCE_Y_CORTE = { 0x1B, 0x64, 0x07, 0x1D, 0x56, 1 };
 
 	public void imprimir(Pedido pedido, List<Detalle> detalles, boolean esCompleto) {
@@ -49,8 +47,6 @@ public class TicketPrinterService {
 
 				DocPrintJob job = service.createPrintJob();
 				job.print(doc, null);
-
-				System.out.println("Impresión ejecutada con éxito en un solo lote.");
 
 			} catch (PrintException | IOException e) {
 				System.err.println("Excepción crítica durante la impresión: " + e.getMessage());
@@ -77,7 +73,7 @@ public class TicketPrinterService {
 
 		for (int i = 0; i < copias; i++) {
 			escribirTicketPrincipal(buffer, pedido, detalles);
-			
+			// Horario del local
 			buffer.write(TAMANYO_NORMAL);
 			buffer.write(ALINEAR_CENTRO);
 			buffer.write("LUNES/VIERNES   10:00HS - 14:00HS\n".getBytes());
@@ -102,6 +98,7 @@ public class TicketPrinterService {
 	}
 
 	private void escribirTicketPrincipal(ByteArrayOutputStream buffer, Pedido pedido, List<Detalle> detalles) throws IOException {
+		// Informacion del local
 		buffer.write(INIT);
 		buffer.write(ALINEAR_CENTRO);
 		buffer.write(DOBLE_ALTO);
@@ -117,6 +114,7 @@ public class TicketPrinterService {
 		buffer.write("--------------------------------\n".getBytes());
 		buffer.write(BOLD_OFF);
 
+		// Informacion de la hora y fecha de impresión
 		buffer.write(ALINEAR_IZQ);
 		buffer.write(DOBLE_ALTO);
 		buffer.write((String.valueOf(pedido.getCodigoPedido())).getBytes());
@@ -135,6 +133,7 @@ public class TicketPrinterService {
 			int numEspacios = 32 - nombreSrv.length() - precio.length();
 			if (numEspacios < 1) numEspacios = 1;
 
+			// Relleno de espacio en medio dinamico
 			buffer.write((nombreSrv).getBytes());
 			for (int i = 0; i < numEspacios; i++) {
 				buffer.write((" ").getBytes());
@@ -150,11 +149,13 @@ public class TicketPrinterService {
 		int numEspacios = 32 - textTotal.length() - textTotalPrecio.length();
 		if (numEspacios < 1) numEspacios = 1;
 
-		buffer.write(BOLD_ON);
+		
+		// Relleno de espacio en medio dinamico
 		buffer.write((textTotal).getBytes());
 		for (int i = 0; i < numEspacios; i++) {
 			buffer.write((" ").getBytes());
 		}
+		buffer.write(BOLD_ON);
 		buffer.write((textTotalPrecio + "\n\n").getBytes());
 		buffer.write(DOBLE_ALTO);
 		buffer.write(("  " + pedido.getEstado().toString() + "\n\n").getBytes());
@@ -163,6 +164,7 @@ public class TicketPrinterService {
 		buffer.write(("RETIRAR ").getBytes());
 		buffer.write(DOBLE_ALTO);
 		buffer.write(BOLD_ON);
+		// Fecha en la que el ticket se asigna a retirar
 		buffer.write((pedido.getFecha().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n").getBytes());
 		buffer.write(BOLD_OFF);
 	}
@@ -170,6 +172,7 @@ public class TicketPrinterService {
 	private void escribirMarcas(ByteArrayOutputStream buffer, Pedido pedido, List<Detalle> detalles) throws IOException {
 		Cliente cliente = pedido.getCliente();
 		String nombreCliente = (cliente != null && cliente.getNombreCompleto() != null) ? cliente.getNombreCompleto() : "Contado";
+		// Variable que aumenta con la cantidad de registros en detalle
 		int num = 1;
 		
 		for (Detalle d : detalles) {
@@ -190,6 +193,8 @@ public class TicketPrinterService {
 			if (numEspacios < 1) numEspacios = 1;
 			
 			buffer.write((nombreSrv).getBytes());
+			
+			// Relleno de espacio en medio dinamico
 			for (int i = 0; i < numEspacios; i++) {
 				buffer.write((" ").getBytes());
 			}

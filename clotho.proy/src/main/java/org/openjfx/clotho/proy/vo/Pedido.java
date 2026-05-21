@@ -1,9 +1,12 @@
 package org.openjfx.clotho.proy.vo;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openjfx.clotho.proy.vo.enumerate.EstadoPedido;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +15,7 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,24 +25,24 @@ public class Pedido {
 	@Column(name = "identificador", nullable = true)
 	private int identificador;
 
-	@Column(name = "codigo_pedido", nullable = true)
+	@Column(name = "codigo_pedido", nullable = false)
 	private int codigoPedido;
 
-	@Column(name = "fecha", nullable = true)
+	@Column(name = "fecha", nullable = false)
 	private LocalDate fecha;
 	
-	@Column(name = "pago_con_tarjeta", nullable = true)
+	@Column(name = "pago_con_tarjeta")
 	private boolean pagoConTarjeta;
 
-	@Column(name = "precio_total", nullable = true)
+	@Column(name = "precio_total", nullable = false)
 	private float precioTotal;
-	
-	@Column(name = "adelanto", nullable = true)
-	private float adelanto;
 
-	@Column(name = "estado", nullable = true)
+	@Column(name = "estado", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private EstadoPedido estado;
+	
+	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Detalle> detalles = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "identificador_cliente", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_PEDIDO_CLIENTE"))
@@ -90,6 +94,22 @@ public class Pedido {
 
 	public void setEstado(EstadoPedido estado) {
 		this.estado = estado;
+	}
+	
+	public float getPrecioTotal() {
+		return precioTotal;
+	}
+
+	public void setPrecioTotal(float precioTotal) {
+		this.precioTotal = precioTotal;
+	}
+
+	public List<Detalle> getDetalles() {
+		return detalles;
+	}
+
+	public void setDetalles(List<Detalle> detalles) {
+		this.detalles = detalles;
 	}
 
 	public Cliente getCliente() {

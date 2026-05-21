@@ -25,14 +25,17 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	}
 
 	@Override
-	public Cliente obtenerEntidadPorNombre(Cliente nombre) throws ProyectoClothoException {
+	public Cliente obtenerEntidadPorNombre(Cliente nombre) throws ProyectoClothoException { // Cambiado parámetro a
+																							// String
 		Cliente entidad = null;
-		String sentenciaHQL = "SELECT b FROM Cliente b where b.nombre like '" + nombre + "'";
+		String sentenciaHQL = "SELECT b FROM Cliente b WHERE b.nombre LIKE :nombre AND b.activo = true";
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
 			SelectionQuery<Cliente> sentenciaConsulta = sesion.createSelectionQuery(sentenciaHQL, Cliente.class);
+			sentenciaConsulta.setParameter("nombre", "%" + nombre.getNombre() + "%");
 			entidad = sentenciaConsulta.getSingleResultOrNull();
 		} catch (Exception e) {
-			throw new ProyectoClothoException(new Exception("No se ha encontrado ningun registro en la Cliente de datos"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
+			throw new ProyectoClothoException(new Exception("Error al consultar el cliente por nombre"), getClass(),
+					ProyectoClothoException.ERROR_CONSULTA);
 		}
 		return entidad;
 	}
@@ -40,14 +43,12 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	@Override
 	public List<Cliente> obtenerListaTodasEntidades() throws ProyectoClothoException {
 		List<Cliente> lista = null;
-		String sentenciaHQL = "SELECT b FROM Cliente b";
+		String sentenciaHQL = "SELECT b FROM Cliente b WHERE b.activo = true";
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
-
 			SelectionQuery<Cliente> sentenciaConsulta = sesion.createSelectionQuery(sentenciaHQL, Cliente.class);
 			lista = sentenciaConsulta.getResultList();
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ProyectoClothoException(e, getClass(), ProyectoClothoException.ERROR_CONSULTA);
 		}
 		return lista;
 	}
@@ -56,7 +57,7 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	public void crearEntidad(Cliente entidad) throws ProyectoClothoException {
 		Transaction transaccion = null;
 		Session sesion = null;
-		
+
 		try {
 			sesion = GestorSesionesHibernate.getSession();
 			transaccion = sesion.beginTransaction();
@@ -80,7 +81,7 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	public void actualizarEntidad(Cliente entidad) throws ProyectoClothoException {
 		Transaction transaccion = null;
 		Session sesion = null;
-		
+
 		try {
 			sesion = GestorSesionesHibernate.getSession();
 			transaccion = sesion.beginTransaction();
@@ -89,7 +90,7 @@ public class ClienteDaoHBNT implements ClienteDAO {
 				sesion.merge(entidad);
 
 			transaccion.commit();
-		}  catch (Exception e) {
+		} catch (Exception e) {
 			if (transaccion != null && transaccion.isActive()) {
 				transaccion.rollback();
 			}
@@ -105,20 +106,22 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	public void borrarEntidadPorClave(Integer clave) throws ProyectoClothoException {
 		Transaction transaccion = null;
 		Session sesion = null;
-		
 		try {
 			sesion = GestorSesionesHibernate.getSession();
 			transaccion = sesion.beginTransaction();
 
-			Cliente Cliente = sesion.find(Cliente.class, clave);
-			sesion.remove(Cliente);
+			Cliente cliente = sesion.find(Cliente.class, clave);
+			if (cliente != null) {
+				cliente.setActivo(false);
+				sesion.merge(cliente);
+			}
 
 			transaccion.commit();
-		}  catch (Exception e) {
+		} catch (Exception e) {
 			if (transaccion != null && transaccion.isActive()) {
 				transaccion.rollback();
 			}
-			e.printStackTrace();
+			throw new ProyectoClothoException(e, getClass(), ProyectoClothoException.ERROR_BORRADO);
 		} finally {
 			if (sesion != null) {
 				sesion.close();
@@ -130,11 +133,13 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	public int obtenerUltimoIdentificador() throws ProyectoClothoException {
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
 			Integer maxId = sesion.createQuery("select max(s.identificador) from Cliente s", Integer.class)
-                    .getSingleResult();
+					.getSingleResult();
 
 			return (maxId == null) ? 0 : maxId;
 		} catch (Exception e) {
-			throw new ProyectoClothoException(new Exception("No se ha encontrado ningun registro en la Cliente de datos"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
+			throw new ProyectoClothoException(
+					new Exception("No se ha encontrado ningun registro en la Cliente de datos"), getClass(),
+					ProyectoClothoException.ERROR_CONSULTA);
 		}
 	}
 
@@ -142,15 +147,15 @@ public class ClienteDaoHBNT implements ClienteDAO {
 	public Long contarTicketsPorCliente(int identificadorCliente) {
 		Long cantidad = 0l;
 		Session session = null;
-		
+
 		try {
 			session = GestorSesionesHibernate.getSession();
-			
+
 			String hql = "SELECT count(p) FROM Pedido p WHERE p.cliente.identificador = :id";
-			
+
 			Query<Long> query = session.createQuery(hql, Long.class);
 			query.setParameter("id", identificadorCliente);
-			
+
 			cantidad = query.uniqueResult();
 		} catch (Exception e) {
 			System.err.println("Error al contar los tickets del cliente: " + e.getMessage());
@@ -160,7 +165,7 @@ public class ClienteDaoHBNT implements ClienteDAO {
 				session.close();
 			}
 		}
-		
+
 		return cantidad;
 	}
 }

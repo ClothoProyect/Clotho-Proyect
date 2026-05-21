@@ -3,6 +3,8 @@ package org.openjfx.clotho.proy;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,14 +17,17 @@ import org.openjfx.clotho.proy.dao.hbnt.FacturaDaoHBNT;
 import org.openjfx.clotho.proy.dao.hbnt.PedidoDaoHBNT;
 import org.openjfx.clotho.proy.documentos.PdfGeneratorService;
 import org.openjfx.clotho.proy.documentos.TicketPrinterService;
+import org.openjfx.clotho.proy.gestor.GestorFicheroProperties;
 import org.openjfx.clotho.proy.vo.Cliente;
 import org.openjfx.clotho.proy.vo.Detalle;
 import org.openjfx.clotho.proy.vo.Factura;
 import org.openjfx.clotho.proy.vo.Pedido;
 import org.openjfx.clotho.proy.vo.enumerate.EstadoPedido;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -44,27 +49,33 @@ import javafx.util.StringConverter;
 
 public class PedidosController {
 
+	private PedidoDaoHBNT pedidoDao = new PedidoDaoHBNT();
+	private DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
+	private ObservableList<Pedido> listaPedidosObs = FXCollections.observableArrayList();
+	private ObservableList<Detalle> listaDetallesObs = FXCollections.observableArrayList();
+	private ClienteDAO clienteDao = new ClienteDaoHBNT();
+	private ObservableList<Cliente> clientesObs = FXCollections.observableArrayList();
+	private boolean sincronizandoCliente = false;
+
+	// ComboBox para buscar registros de la clase Cliente
 	@FXML
 	private ComboBox<Cliente> cmbFiltroCliente;
 	@FXML
 	private ComboBox<Cliente> cmbFiltroTelefono;
 
-	private ClienteDAO clienteDao = new ClienteDaoHBNT();
-
-	private ObservableList<Cliente> clientesObs = FXCollections.observableArrayList();
-
-	private boolean sincronizandoCliente = false;
-	@FXML
-	private ToggleGroup grupoAnio;
+	// Filtros de busqueda
 	@FXML
 	private TextField txtFiltroNumTicket;
 	@FXML
 	private TextField txtFiltroCliente;
 	@FXML
+	private TextField txtFiltroAnio;
+	@FXML
 	private DatePicker dpFiltroDesde;
 	@FXML
 	private DatePicker dpFiltroHasta;
 
+	// Tabla de Tickets
 	@FXML
 	private TableView<Pedido> tablaTickets;
 	@FXML
@@ -80,6 +91,8 @@ public class PedidosController {
 
 	@FXML
 	private Label lblTicketSeleccionado;
+	
+	// Tabla de Detalles
 	@FXML
 	private TableView<Detalle> tablaDetalles;
 	@FXML
@@ -91,21 +104,15 @@ public class PedidosController {
 	@FXML
 	private TableColumn<Detalle, Float> colDetTotal;
 
-	// --- PANELES INFERIORES Y CONTROLES ---
 	@FXML
 	private CheckBox chkImprimirMarcas;
 
 	@FXML
 	private Label lblAlerta;
 
-	private PedidoDaoHBNT pedidoDao = new PedidoDaoHBNT();
-	private DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
-	private ObservableList<Pedido> listaPedidosObs = FXCollections.observableArrayList();
-	private ObservableList<Detalle> listaDetallesObs = FXCollections.observableArrayList();
-
 	@FXML
 	public void initialize() {
-		configurarColumnasMaestro();
+		configurarColumnasTickets();
 		configurarColumnasDetalle();
 
 		tablaTickets.setItems(listaPedidosObs);
@@ -126,6 +133,7 @@ public class PedidosController {
 		cargaListaClientes();
 	}
 
+	// Asigna el  cliente selecionado del comboBox
 	private void sincronizarSeleccion(Cliente clienteSeleccionado) {
 		if (sincronizandoCliente)
 			return;
@@ -136,6 +144,7 @@ public class PedidosController {
 		sincronizandoCliente = false;
 	}
 
+	// Carga los comboBox de clientes
 	private void cargaListaClientes() {
 		try {
 			clientesObs = FXCollections.observableArrayList(clienteDao.obtenerListaTodasEntidades());
@@ -182,19 +191,16 @@ public class PedidosController {
 		cmbFiltroTelefono.valueProperty().addListener((obs, oldVal, newVal) -> sincronizarSeleccion(newVal));
 	}
 
-	private void configurarColumnasMaestro() {
-
-		tablaTickets.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("codigoPedido")); // Columna 0:
-																											// Nº Ticket
-		tablaTickets.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("cliente")); // Columna 1:
-																										// Cliente
-		tablaTickets.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("fecha")); // Columna 2: Fecha
-																									// Ticket
-		tablaTickets.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("estado")); // Columna 3: Estado
+	// Formato de la tabla de Tickets
+	private void configurarColumnasTickets() {
+		tablaTickets.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("codigoPedido"));
+		tablaTickets.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("cliente"));
+		tablaTickets.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("fecha"));
+		tablaTickets.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("estado"));
 
 		TableColumn<Pedido, Float> colTotal = (TableColumn<Pedido, Float>) tablaTickets.getColumns().get(4);
 		colTotal.setCellValueFactory(new PropertyValueFactory<>("precio"));
-
+		// Formato del precio en euros
 		colTotal.setCellFactory(columna -> new TableCell<Pedido, Float>() {
 			@Override
 			protected void updateItem(Float precio, boolean empty) {
@@ -209,12 +215,13 @@ public class PedidosController {
 		});
 	}
 
+	// Formato de la tabla de servicios
 	private void configurarColumnasDetalle() {
 		tablaDetalles.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("servicio"));
 
 		TableColumn<Detalle, Float> colPrecioDetalle = (TableColumn<Detalle, Float>) tablaDetalles.getColumns().get(1);
 		colPrecioDetalle.setCellValueFactory(new PropertyValueFactory<>("precioUnitario"));
-
+		// Formato del precio en euros
 		colPrecioDetalle.setCellFactory(columna -> new TableCell<Detalle, Float>() {
 			@Override
 			protected void updateItem(Float precio, boolean empty) {
@@ -232,7 +239,10 @@ public class PedidosController {
 	@FXML
 	private void ejecutarBusqueda() {
 		try {
+			// Se toman todas las variables de busqueda
 			String filtroTicket = txtFiltroNumTicket.getText() != null ? txtFiltroNumTicket.getText().trim() : "";
+
+			String filtroAnio = txtFiltroAnio.getText() != null ? txtFiltroAnio.getText().trim() : "";
 
 			String tempCliente = "";
 			if (cmbFiltroCliente.getValue() != null) {
@@ -249,29 +259,30 @@ public class PedidosController {
 			List<Pedido> todosLosPedidos = pedidoDao.obtenerListaTodasEntidades();
 
 			List<Pedido> resultados = todosLosPedidos.stream().filter(pedido -> {
+				// Se iltra con flujo de datos
 				boolean coincideTicket = true;
 				boolean coincideCliente = true;
+				boolean coincideAnio = true;
 				boolean coincideDesde = true;
 				boolean coincideHasta = true;
-
+				// Se comprueba que filtros se estan usando para usarlos en la busqueda
 				if (!filtroTicket.isEmpty()) {
 					coincideTicket = String.valueOf(pedido.getCodigoPedido()).contains(filtroTicket);
 				}
-
 				if (!filtroCliente.isEmpty() && pedido.getCliente() != null) {
 					coincideCliente = pedido.getCliente().getNombreCompleto().toLowerCase().contains(filtroCliente);
 				}
-
+				if (!filtroAnio.isEmpty() && pedido.getFecha() != null) {
+					coincideAnio = String.valueOf(pedido.getFecha().getYear()).contains(filtroAnio);
+				}
 				if (fechaDesde != null && pedido.getFecha() != null) {
 					coincideDesde = !pedido.getFecha().isBefore(fechaDesde);
 				}
-
 				if (fechaHasta != null && pedido.getFecha() != null) {
 					coincideHasta = !pedido.getFecha().isAfter(fechaHasta);
 				}
 
-				return coincideTicket && coincideCliente && coincideDesde && coincideHasta;
-
+				return coincideTicket && coincideAnio && coincideCliente && coincideDesde && coincideHasta;
 			}).collect(Collectors.toList());
 
 			listaPedidosObs.clear();
@@ -288,6 +299,34 @@ public class PedidosController {
 		}
 	}
 
+	@FXML
+	private void reiniciarBusqueda() {
+		// Limpia los textfield
+		txtFiltroNumTicket.clear();
+		txtFiltroAnio.clear();
+
+		// Limpia los ComboBox
+		if (cmbFiltroCliente != null) {
+			cmbFiltroCliente.setValue(null);
+			cmbFiltroCliente.getEditor().clear();
+		}
+
+		if (cmbFiltroTelefono != null) {
+			cmbFiltroTelefono.setValue(null);
+			cmbFiltroTelefono.getEditor().clear();
+		}
+
+		// Asigna las fechas a su valor "por defecto"
+		dpFiltroDesde.setValue(LocalDate.now().minusDays(14));
+		dpFiltroHasta.setValue(LocalDate.now().plusDays(14));
+
+		// Limpia el texto de alerta
+		lblAlerta.setText("");
+
+		// Llama a la busqueda para mostrar todos los registros
+		ejecutarBusqueda();
+	}
+
 	private void cargarDetallesDeTicket(Pedido pedidoSeleccionado) {
 		lblTicketSeleccionado.setText("Ticket Nº: " + pedidoSeleccionado.getCodigoPedido() + " - "
 				+ pedidoSeleccionado.getCliente().getNombre());
@@ -295,7 +334,6 @@ public class PedidosController {
 		try {
 			listaDetallesObs.clear();
 
-			// (Recomendado):
 			List<Detalle> detalles = detalleDao.obtenerDetallesPorPedido(pedidoSeleccionado.getIdentificador());
 
 			if (detalles != null && !detalles.isEmpty()) {
@@ -310,95 +348,114 @@ public class PedidosController {
 
 	@FXML
 	private void generarFactura() {
-		try {
-			Pedido pedidoSeleccionado = tablaTickets.getSelectionModel().getSelectedItem();
-			DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
-			FacturaDaoHBNT facturaDao = new FacturaDaoHBNT();
+		Pedido pedidoSeleccionado = tablaTickets.getSelectionModel().getSelectedItem();
 
-			if (pedidoSeleccionado == null) {
-				lblAlerta.setText("Seleccione un\nticket para\nhacer la factura");
-				return;
-			} else if (pedidoSeleccionado.getEstado() == EstadoPedido.Cancelado) {
-				lblAlerta.setText("Error\nticket cancelado");
-				return;
-			}
-			boolean existenciaPrevia = facturaDao.confirmarExistenciaTicket(pedidoSeleccionado.getIdentificador());
-
-			if (existenciaPrevia) {
-				lblAlerta.setText("Factura generada\npreviamente");
-			}
-			
-			int numeroFactura = 0;
-			Factura facturaImprimir = new Factura();
-
-			if (!existenciaPrevia) {
-				numeroFactura = facturaDao.obtenerUltimoIdentificador() + 1;
-				facturaImprimir.setIdentificador(numeroFactura);
-				facturaImprimir.setPedido(pedidoSeleccionado);
-				facturaImprimir.setFecha(LocalDate.now());
-				facturaDao.crearEntidad(facturaImprimir);
-			} else {
-				facturaImprimir = facturaDao.obtenerFacturaPorTicket(pedidoSeleccionado.getIdentificador());
-				numeroFactura = facturaImprimir.getIdentificador();
-			}
-
-			PdfGeneratorService pdfService = new PdfGeneratorService();
-			Map<String, Object> model = new java.util.HashMap<>();
-
-			List<Detalle> detalles = detalleDao.obtenerDetallesPorPedido(pedidoSeleccionado.getIdentificador());
-
-			String fechaTexto = LocalDate.now()
-					.format(DateTimeFormatter.ofPattern("dd 'de' MMMM 'del' yyyy", new Locale("es", "ES")));
-			model.put("fechaCompleta", fechaTexto);
-			model.put("serial", String.format("%04d", pedidoSeleccionado.getCodigoPedido()));
-
-			Cliente cliente = pedidoSeleccionado.getCliente();
-			model.put("cliente",
-					Map.of("nombre",
-							cliente.getNombreCompleto() != null ? cliente.getNombreCompleto() : "Cliente Contado",
-							"calle", cliente.getDireccion() != null ? cliente.getDireccion() : "", "codigoPostal",
-							cliente.getCodigoPostal() > 0 ? String.valueOf(cliente.getCodigoPostal()) : "", "nif",
-							cliente.getCif() != null ? cliente.getCif() : ""));
-
-			List<Map<String, String>> listaProductos = new java.util.ArrayList<>();
-			float sumaBaseImponible = 0f;
-			float sumaIva = 0f;
-			float granTotal = 0f;
-
-			final float TIPO_IVA = 0.21f;
-
-			for (Detalle d : detalles) {
-				float totalLinea = d.getPrecioUnitario();
-
-				float baseLinea = totalLinea / (1 + TIPO_IVA);
-				float ivaLinea = totalLinea - baseLinea;
-
-				sumaBaseImponible += baseLinea;
-				sumaIva += ivaLinea;
-				granTotal += totalLinea;
-
-				String descripcionCompleta = "Ticket " + pedidoSeleccionado.getCodigoPedido() + " - "
-						+ d.getServicio().getNombre();
-
-				listaProductos.add(Map.of("descripcion", descripcionCompleta, "base",
-						String.format(new Locale("es", "ES"), "%.2f", baseLinea), "iva",
-						String.format(new Locale("es", "ES"), "%.2f", ivaLinea), "total",
-						String.format(new Locale("es", "ES"), "%.2f", totalLinea)));
-			}
-			model.put("productos", listaProductos);
-
-			model.put("totales",
-					Map.of("baseImponible", String.format(new Locale("es", "ES"), "%.2f", sumaBaseImponible),
-							"totalIva", String.format(new Locale("es", "ES"), "%.2f", sumaIva), "granTotal",
-							String.format(new Locale("es", "ES"), "%.2f", granTotal)));
-
-			String nombreArchivo = "factura_" + numeroFactura + ".pdf";
-
-			pdfService.generatePdf("FacturaZYPSASTRERIA", model, nombreArchivo);
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (pedidoSeleccionado == null) {
+			lblAlerta.setText("Seleccione un ticket para hacer la factura");
+			return;
+		} else if (pedidoSeleccionado.getEstado() == EstadoPedido.Cancelado) {
+			lblAlerta.setText("Error: ticket cancelado");
+			return;
 		}
+
+		lblAlerta.setText("Generando factura, por favor espere...");
+
+		Task<Void> tareaFactura = new Task<>() {
+			@Override
+			protected Void call() throws Exception {
+				DetalleDaoHBNT detalleDao = new DetalleDaoHBNT();
+				FacturaDaoHBNT facturaDao = new FacturaDaoHBNT();
+
+				boolean existenciaPrevia = facturaDao.confirmarExistenciaTicket(pedidoSeleccionado.getIdentificador());
+				int numeroFactura = 0;
+				Factura facturaImprimir = new Factura();
+
+				if (!existenciaPrevia) {
+					// Lógica de factura nueva
+					numeroFactura = facturaDao.obtenerUltimoIdentificador() + 1;
+					facturaImprimir.setIdentificador(numeroFactura);
+					facturaImprimir.setPedido(pedidoSeleccionado);
+					facturaImprimir.setFecha(LocalDate.now());
+					facturaImprimir.setSerial(pedidoSeleccionado.getCodigoPedido() + "-" + pedidoSeleccionado.getFecha().getYear());
+					facturaDao.crearEntidad(facturaImprimir);
+				} else {
+					// Como ya existe hay que notificarle al usuario
+					Platform.runLater(() -> lblAlerta.setText("Factura previa encontrada, regenerando PDF..."));
+
+					facturaImprimir = facturaDao.obtenerFacturaPorTicket(pedidoSeleccionado.getIdentificador());
+					numeroFactura = facturaImprimir.getIdentificador();
+				}
+
+				// Generar el nuevo PFD
+				PdfGeneratorService pdfService = new PdfGeneratorService();
+				Map<String, Object> model = new HashMap<>();
+				List<Detalle> detalles = detalleDao.obtenerDetallesPorPedido(pedidoSeleccionado.getIdentificador());
+
+				String fechaTexto = LocalDate.now()
+						.format(DateTimeFormatter.ofPattern("dd 'de' MMMM 'del' yyyy", new Locale("es", "ES")));
+				model.put("fechaCompleta", fechaTexto);
+
+				model.put("serial", String.format("%04d", numeroFactura));
+
+				Cliente cliente = pedidoSeleccionado.getCliente();
+				model.put("cliente",
+						Map.of("nombre",
+								cliente.getNombreCompleto() != null ? cliente.getNombreCompleto() : "Cliente Contado",
+								"calle", cliente.getDireccion() != null ? cliente.getDireccion() : "", "codigoPostal",
+								cliente.getCodigoPostal() > 0 ? String.valueOf(cliente.getCodigoPostal()) : "", "nif",
+								cliente.getCif() != null ? cliente.getCif() : ""));
+
+				List<Map<String, String>> listaProductos = new ArrayList<>();
+				float sumaBaseImponible = 0f;
+				float sumaIva = 0f;
+				float granTotal = 0f;
+				String ivaProp = GestorFicheroProperties.getValorConfig("iva.general");
+				final float TIPO_IVA = Float.parseFloat(ivaProp) / 100f;
+
+				for (Detalle d : detalles) {
+					float totalLinea = d.getPrecioUnitario();
+
+					float baseLinea = totalLinea / (1 + TIPO_IVA);
+					float ivaLinea = totalLinea - baseLinea;
+
+					sumaBaseImponible += baseLinea;
+					sumaIva += ivaLinea;
+					granTotal += totalLinea;
+
+					String descripcionCompleta = "Ticket " + pedidoSeleccionado.getCodigoPedido() + " - "
+							+ d.getServicio().getNombre();
+
+					listaProductos.add(Map.of("descripcion", descripcionCompleta, "base",
+							String.format(new Locale("es", "ES"), "%.2f", baseLinea), "iva",
+							String.format(new Locale("es", "ES"), "%.2f", ivaLinea), "total",
+							String.format(new Locale("es", "ES"), "%.2f", totalLinea)));
+				}
+				model.put("productos", listaProductos);
+
+				model.put("iva", String.valueOf(ivaProp));
+
+				model.put("totales",
+						Map.of("baseImponible", String.format(new Locale("es", "ES"), "%.2f", sumaBaseImponible),
+								"totalIva", String.format(new Locale("es", "ES"), "%.2f", sumaIva), "granTotal",
+								String.format(new Locale("es", "ES"), "%.2f", granTotal)));
+
+				String nombreArchivo = "factura_" + numeroFactura + ".pdf";
+
+				pdfService.generatePdf("FacturaZYPSASTRERIA", model, nombreArchivo);
+
+				return null;
+			}
+		};
+
+		tareaFactura.setOnSucceeded(workerStateEvent -> lblAlerta.setText("Factura generada con éxito"));
+
+		tareaFactura.setOnFailed(workerStateEvent -> {
+			lblAlerta.setText("Error crítico al renderizar el PDF.");
+			tareaFactura.getException().printStackTrace();
+		});
+
+		// Arrancamos el hilo secundario para liberar el hilo de la interfaz
+		new Thread(tareaFactura).start();
 	}
 
 	@FXML
@@ -406,7 +463,7 @@ public class PedidosController {
 		Pedido pedidoSeleccionado = tablaTickets.getSelectionModel().getSelectedItem();
 
 		if (pedidoSeleccionado == null) {
-			System.err.println("Por favor, seleccione un ticket de la tabla para imprimir.");
+			lblAlerta.setText("Por favor, seleccione un ticket de la tabla para imprimir.");
 			return;
 		}
 
@@ -419,7 +476,7 @@ public class PedidosController {
 			printerService.imprimir(pedidoSeleccionado, detalles, esCompleto);
 
 		} catch (Exception e) {
-			System.err.println("Error al intentar reimprimir el ticket físico.");
+			lblAlerta.setText("Error al intentar reimprimir el ticket físico.");
 			e.printStackTrace();
 		}
 	}
@@ -429,7 +486,7 @@ public class PedidosController {
 		Pedido pedidoSeleccionado = tablaTickets.getSelectionModel().getSelectedItem();
 
 		if (pedidoSeleccionado == null) {
-			System.err.println("Por favor, seleccione un ticket de la tabla para retirarlo.");
+			lblAlerta.setText("Por favor, seleccione un ticket de la tabla para retirarlo.");
 			return;
 		}
 
@@ -445,10 +502,10 @@ public class PedidosController {
 		Pedido pedidoSeleccionado = tablaTickets.getSelectionModel().getSelectedItem();
 
 		if (pedidoSeleccionado == null) {
-			lblAlerta.setText("Seleccione un\nticket de la\ntabla para anularlo");
+			lblAlerta.setText("Seleccione un ticket de la tabla para anularlo");
 			return;
 		} else if (pedidoSeleccionado.getEstado() != EstadoPedido.Sin_Pagar) {
-			lblAlerta.setText("Solo se pueden\ncancelar tickets\nimpagos");
+			lblAlerta.setText("Solo se pueden cancelar tickets impagos");
 			return;
 		}
 
@@ -479,6 +536,7 @@ public class PedidosController {
 		}
 	}
 
+	// Metodo de confirmacion de anular un ticket
 	private void ejecutarAnulacion(Pedido pedido) {
 		try {
 			pedido.setEstado(EstadoPedido.Cancelado);
@@ -492,6 +550,7 @@ public class PedidosController {
 		}
 	}
 
+	// Ventana emergente si el ticket aun no ha sido pagado
 	private void mostrarVentanaCobro(Pedido pedido) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("cobro.fxml"));
@@ -518,6 +577,7 @@ public class PedidosController {
 		}
 	}
 
+	// Metodo para actualizar un ticket a "Retirado"
 	private void ejecutarRetirada(Pedido pedido) {
 		try {
 			pedido.setEstado(EstadoPedido.Retirado);

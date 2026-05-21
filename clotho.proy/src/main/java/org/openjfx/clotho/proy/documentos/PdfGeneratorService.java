@@ -21,40 +21,37 @@ public class PdfGeneratorService {
 	public PdfGeneratorService() {
 		StringTemplateResolver resolver = new StringTemplateResolver();
 
-		// Fuerza a Thymeleaf a no borrar las barras de cierre
+		// Le dice a Thymeleaf que por favor no borre las barras de cierre
 		resolver.setTemplateMode("XML");
 
 		this.templateEngine = new TemplateEngine();
 		this.templateEngine.setTemplateResolver(resolver);
 	}
 
-	// Cambiamos el parámetro 'outputPath' por 'nombreArchivo' para que sea más
-	// descriptivo
 	public void generatePdf(String templateName, Map<String, Object> data, String nombreArchivo) {
 		try {
-			// 1. Obtener la ruta de la carpeta personal del usuario del sistema operativo
+			// Conseguir la ruta de la carpeta personal del usuario
 			String rutaUsuario = System.getProperty("user.home");
 
-			// 2. Construimos la ruta apuntando a Descargas/facturasZYP
-			Path directorioFacturas = Paths.get(rutaUsuario, "Downloads", "facturasZYP");
+			// La ruta donde se guarda apunta a Escritorio/facturasZYP
+			Path carpetaFacturas = Paths.get(rutaUsuario, "Desktop", "facturasZYP");
 
-			// 3. Si la carpeta "facturasZYP" no existe en Descargas, la creamos
-			// automáticamente
-			if (!Files.exists(directorioFacturas)) {
-				Files.createDirectories(directorioFacturas);
+			// En caso de no existir la carpeta "facturasZYP" la crea
+			if (!Files.exists(carpetaFacturas)) {
+				Files.createDirectories(carpetaFacturas);
 			}
 
-			// 4. Combinamos la ruta de la carpeta con el nombre del archivo final
-			Path rutaCompleta = directorioFacturas.resolve(nombreArchivo);
+			// Fusionamos la ruta de la carpeta con el nombre del archivo
+			Path rutaCompleta = carpetaFacturas.resolve(nombreArchivo);
 
-			// 5. Abrimos el flujo de escritura directamente en la ruta de destino final
+			// Se abre la ruta de escritura
 			try (OutputStream os = new FileOutputStream(rutaCompleta.toFile())) {
 
 				String ruta = "/templates/" + templateName + ".html";
 				InputStream is = getClass().getResourceAsStream(ruta);
 
 				if (is == null) {
-					throw new RuntimeException("¡Error Crítico! Java no encuentra el archivo en: " + ruta);
+					throw new RuntimeException("Error; Java no encuentra el archivo en: " + ruta);
 				}
 
 				String templateContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -68,8 +65,7 @@ public class PdfGeneratorService {
 				builder.withHtmlContent(renderedHtml, null);
 				builder.toStream(os);
 				builder.run();
-
-				System.out.println("PDF generado con éxito en la ruta: " + rutaCompleta.toString());
+				// Se finaliza la escritura del PDF
 			}
 
 		} catch (Exception e) {

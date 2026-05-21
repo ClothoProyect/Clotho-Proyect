@@ -49,7 +49,7 @@ public class FacturaDaoHBNT implements FacturaDAO {
 	public void crearEntidad(Factura entidad) throws ProyectoClothoException {
 		Transaction transaccion = null;
 		Session sesion = null;
-		
+
 		try {
 			sesion = GestorSesionesHibernate.getSession();
 			transaccion = sesion.beginTransaction();
@@ -73,14 +73,14 @@ public class FacturaDaoHBNT implements FacturaDAO {
 	public void actualizarEntidad(Factura entidad) throws ProyectoClothoException {
 		Transaction transaccion = null;
 		Session sesion = null;
-		
+
 		try {
 			sesion = GestorSesionesHibernate.getSession();
 			transaccion = sesion.beginTransaction();
 
 			if (!sesion.contains(entidad)) {
 				sesion.merge(entidad);
-            }
+			}
 
 			transaccion.commit();
 		} catch (Exception e) {
@@ -99,15 +99,15 @@ public class FacturaDaoHBNT implements FacturaDAO {
 	public void borrarEntidadPorClave(Integer clave) throws ProyectoClothoException {
 		Transaction transaccion = null;
 		Session sesion = null;
-		
+
 		try {
 			sesion = GestorSesionesHibernate.getSession();
 			transaccion = sesion.beginTransaction();
 
 			Factura factura = sesion.find(Factura.class, clave);
-            if (factura != null) {
-			    sesion.remove(factura);
-            }
+			if (factura != null) {
+				sesion.remove(factura);
+			}
 
 			transaccion.commit();
 		} catch (Exception e) {
@@ -126,25 +126,12 @@ public class FacturaDaoHBNT implements FacturaDAO {
 	public int obtenerUltimoIdentificador() throws ProyectoClothoException {
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
 			Integer maxId = sesion.createQuery("select max(f.identificador) from Factura f", Integer.class)
-                    .getSingleResult();
-
-			return (maxId == null) ? 0 : maxId;
-		} catch (Exception e) {
-			throw new ProyectoClothoException(new Exception("Error al obtener el último identificador de Factura"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
-		}
-	}
-
-	@Override
-	public int obtenerUltimoCodigoPedido() throws ProyectoClothoException {
-		try (Session sesion = GestorSesionesHibernate.getSession();) {
-			Integer maxCodigo = sesion.createQuery("select max(f.codigoFactura) from Factura f", Integer.class)
 					.getSingleResult();
 
-			return (maxCodigo == null) ? 0 : maxCodigo;
-			
+			return (maxId == null) ? 0 : maxId;
+
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ProyectoClothoException(new Exception("Error al obtener el último código de Factura"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
+			throw new ProyectoClothoException(e, getClass(), ProyectoClothoException.ERROR_CONSULTA);
 		}
 	}
 
@@ -153,40 +140,40 @@ public class FacturaDaoHBNT implements FacturaDAO {
 		boolean existe = false;
 
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
-			
+
 			String hql = "SELECT count(f) FROM Factura f WHERE f.pedido.identificador = :idPedido";
-			
+
 			Query<Long> query = sesion.createQuery(hql, Long.class);
 			query.setParameter("idPedido", identificadorPedido);
-			
+
 			Long cantidad = query.uniqueResult();
-			
+
 			if (cantidad != null && cantidad > 0) {
 				existe = true;
 			}
-			
+
 		} catch (Exception e) {
 			throw new ProyectoClothoException(e, this.getClass(), 2);
 		}
 		return existe;
 	}
-	
+
 	@Override
 	public Factura obtenerFacturaPorTicket(int identificadorTicket) throws ProyectoClothoException {
 		Factura facturaEncontrada = null;
 
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
 			String hql = "SELECT f FROM Factura f WHERE f.pedido.identificador = :idTicket";
-			
+
 			Query<Factura> query = sesion.createQuery(hql, Factura.class);
 			query.setParameter("idTicket", identificadorTicket);
-			
+
 			facturaEncontrada = query.uniqueResult();
-			
+
 		} catch (Exception e) {
 			throw new ProyectoClothoException(e, this.getClass(), 2);
 		}
-		
+
 		return facturaEncontrada;
 	}
 }

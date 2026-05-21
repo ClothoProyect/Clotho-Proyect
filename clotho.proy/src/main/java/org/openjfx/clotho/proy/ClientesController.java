@@ -8,7 +8,9 @@ import org.openjfx.clotho.proy.exception.ProyectoClothoException;
 import org.openjfx.clotho.proy.vo.Cliente;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,8 +26,8 @@ public class ClientesController {
 
 	private ClienteDAO clienteDao = new ClienteDaoHBNT();
 	private ObservableList<Cliente> clientesObs;
-	private Cliente clienteActual = null;
 	private boolean sincronizandoCliente = false;
+	private ObjectProperty<Cliente> clienteActual = new SimpleObjectProperty<>(null);
 	private PrincipalController controladorPrincipal;
 
 	@FXML
@@ -71,14 +73,12 @@ public class ClientesController {
 			return cambio;
 		};
 
-		// Formato/traductos en mayusculas para todos los textos
 		txtNombre.setTextFormatter(new TextFormatter<>(filtroMayusculas));
 		txtApellidos.setTextFormatter(new TextFormatter<>(filtroMayusculas));
 		txtCIF.setTextFormatter(new TextFormatter<>(filtroMayusculas));
 		txtDireccion.setTextFormatter(new TextFormatter<>(filtroMayusculas));
 		txtNotasAdicionales.setTextFormatter(new TextFormatter<>(filtroMayusculas));
 
-		// Obtención de la lista de clientes para los ComboBox
 		try {
 			clientesObs = FXCollections.observableArrayList(clienteDao.obtenerListaTodasEntidades());
 		} catch (ProyectoClothoException e) {
@@ -88,7 +88,6 @@ public class ClientesController {
 		cmbBusquedaNombreCliente.setItems(clientesObs);
 		cmbBusquedaTelefonoCliente.setItems(clientesObs);
 
-		// Filtro de busqueda para los ComboBox
 		cmbBusquedaNombreCliente.setConverter(new StringConverter<Cliente>() {
 			@Override
 			public String toString(Cliente cliente) {
@@ -121,18 +120,17 @@ public class ClientesController {
 			}
 		});
 
-		// Eventos para la selección de un cliente existente en el ComboBox
 		cmbBusquedaNombreCliente.valueProperty().addListener((obs, oldVal, newVal) -> cargarDatosCliente(newVal));
 		cmbBusquedaTelefonoCliente.valueProperty().addListener((obs, oldVal, newVal) -> cargarDatosCliente(newVal));
 
-		// Configurar visibilidad de los botones si se pulsa "Eliminar"
 		btnLimpiar.visibleProperty().bind(procesoElimanacion.not());
 		btnLimpiar.managedProperty().bind(btnLimpiar.visibleProperty());
 
 		btnGuardar.visibleProperty().bind(procesoElimanacion.not());
 		btnGuardar.managedProperty().bind(btnGuardar.visibleProperty());
 
-		btnEliminar.visibleProperty().bind(procesoElimanacion.not());
+		// CAMBIO AQUÍ: El botón de eliminar requiere que NO esté en proceso de eliminación Y que haya un cliente cargado
+		btnEliminar.visibleProperty().bind(procesoElimanacion.not().and(clienteActual.isNotNull()));
 		btnEliminar.managedProperty().bind(btnEliminar.visibleProperty());
 
 		btnConfirmar.visibleProperty().bind(procesoElimanacion);
@@ -217,15 +215,14 @@ public class ClientesController {
 			cmbBusquedaTelefonoCliente.getEditor().clear();
 		}
 
-		// Reseteamos el cliente actual para poder crear uno nuevo desde cero
-		this.clienteActual = null;
+		this.clienteActual.set(null);
 
 		sincronizandoCliente = false;
 	}
 
 	@FXML
 	private void eliminarCliente() {
-		if (this.clienteActual == null) {
+		if (this.clienteActual.get() == null) {
 			lblAviso.setText("Debes tener un cliente selecionado para eliminarle");
 			return;
 		}
@@ -240,16 +237,16 @@ public class ClientesController {
 
 	@FXML
 	private void confirmarEliminacion() {
-		if (this.clienteActual != null) {
-			String nombreBorrado = this.clienteActual.getNombreCompleto();
+		if (this.clienteActual.get() != null) {
+			String nombreBorrado = this.clienteActual.get().getNombreCompleto();
 			try {
-				if ((clienteDao.contarTicketsPorCliente(clienteActual.getIdentificador()) > 0)) {
+				if ((clienteDao.contarTicketsPorCliente(clienteActual.get().getIdentificador()) > 0)) {
 					lblAviso.setText("Rechazado: No se puede eliminar a " + nombreBorrado
 							+ " porque tiene tickets asociados o hubo un error.");
 				} else {
-					clienteDao.borrarEntidadPorClave(this.clienteActual.getIdentificador());
+					clienteDao.borrarEntidadPorClave(this.clienteActual.get().getIdentificador());
 
-					clientesObs.remove(this.clienteActual);
+					clientesObs.remove(this.clienteActual.get());
 					limpiarFormulario();
 					lblAviso.setText("Cliente " + nombreBorrado + " eliminado correctamente.");
 				}
@@ -267,14 +264,14 @@ public class ClientesController {
 		}
 
 		sincronizandoCliente = true;
-		this.clienteActual = clienteSeleccionado;
+		
+		// CAMBIO: Usamos .set() para actualizar el cliente actual
+		this.clienteActual.set(clienteSeleccionado);
 
 		if (clienteSeleccionado != null) {
-			// 1. Sincronizamos ambos ComboBox para que muestren lo mismo
 			cmbBusquedaNombreCliente.setValue(clienteSeleccionado);
 			cmbBusquedaTelefonoCliente.setValue(clienteSeleccionado);
 
-			// 2. Rellenamos los campos de texto comprobando que no sean nulos
 			txtNombre.setText(clienteSeleccionado.getNombre() != null ? clienteSeleccionado.getNombre() : "");
 			txtApellidos.setText(clienteSeleccionado.getApellidos() != null ? clienteSeleccionado.getApellidos() : "");
 			txtTelefono.setText(clienteSeleccionado.getTelefono() != null ? clienteSeleccionado.getTelefono() : "");
@@ -284,14 +281,12 @@ public class ClientesController {
 			txtNotasAdicionales.setText(
 					clienteSeleccionado.getNotasAdicionales() != null ? clienteSeleccionado.getNotasAdicionales() : "");
 
-			// El código postal es un número, comprobamos si es mayor que 0
 			if (clienteSeleccionado.getCodigoPostal() > 0) {
 				txtCodigoPostal.setText(String.valueOf(clienteSeleccionado.getCodigoPostal()));
 			} else {
 				txtCodigoPostal.clear();
 			}
 		} else {
-			// Si llega nulo (porque el usuario borró la búsqueda), limpiamos
 			limpiarFormulario();
 		}
 

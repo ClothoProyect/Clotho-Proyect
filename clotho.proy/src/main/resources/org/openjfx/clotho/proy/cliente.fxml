@@ -16,45 +16,45 @@
     <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
     
     <Label text="Modificación de Clientes"/>
-    <Label fx:id="lblAviso"/>
+    <Label fx:id="lblAviso"  wrapText="true" minHeight="-Infinity" />
     
     <HBox spacing="10.0" alignment="CENTER">
-        <Label text="Nombre:" style="-fx-font-weight: bold;"/>
+        <Label text="Buscar por Nombre:"/>
         <ComboBox fx:id="cmbBusquedaNombreCliente" editable="true" prefWidth="400.0" promptText="Nombre"/>
     </HBox>
     
     <HBox spacing="10.0" alignment="CENTER">
-        <Label text="Telefono:" style="-fx-font-weight: bold;"/>
+        <Label text="Buscar por Telefono:"/>
         <ComboBox fx:id="cmbBusquedaTelefonoCliente" editable="true" prefWidth="400.0" promptText="Teléfono"/>
     </HBox>
     
     <HBox spacing="10.0" alignment="CENTER">
-    	<Label text="Modificación de Clientes"/>
+    	<Label text="Información de Clientes"/>
 	</HBox>
     
     <GridPane hgap="15.0" vgap="15.0" alignment="CENTER">
-        <Label text="Nombre:" style="-fx-font-weight: bold;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <TextField fx:id="txtNombre" promptText="Nombre" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
         
-        <Label text="Dirección:" style="-fx-font-weight: bold;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <Label text="Dirección:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
         <TextField fx:id="txtDireccion" promptText="Dirección completa" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
         
-        <Label text="Apellidos:" style="-fx-font-weight: bold;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Label text="Apellidos:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
         <TextField fx:id="txtApellidos" promptText="Apellidos" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
         
-        <Label text="C. Postal:" style="-fx-font-weight: bold;" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+        <Label text="C. Postal:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
         <TextField fx:id="txtCodigoPostal" promptText="Código postal" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
         
-        <Label text="Teléfono:" style="-fx-font-weight: bold;" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <Label text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
         <TextField fx:id="txtTelefono" promptText="Teléfono" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         
-        <Label text="Notas:" style="-fx-font-weight: bold;" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+        <Label text="Notas:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
         <TextField fx:id="txtNotasAdicionales" promptText="Notas adicionales" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
         
-        <Label text="Email:" style="-fx-font-weight: bold;" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+        <Label text="Email:" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
         <TextField fx:id="txtEmail" promptText="Correo electrónico" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
         
-        <Label text="CIF:" style="-fx-font-weight: bold;" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <Label text="CIF:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
         <TextField fx:id="txtCIF" promptText="CIF completo" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
     </GridPane>
     

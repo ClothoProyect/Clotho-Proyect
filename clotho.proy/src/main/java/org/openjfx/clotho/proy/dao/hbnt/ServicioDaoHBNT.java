@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
 import org.openjfx.clotho.proy.dao.ServicioDAO;
 import org.openjfx.clotho.proy.exception.ProyectoClothoException;
@@ -39,7 +40,7 @@ public class ServicioDaoHBNT implements ServicioDAO {
 	@Override
 	public List<Servicio> obtenerListaTodasEntidades() throws ProyectoClothoException {
 		List<Servicio> lista = null;
-		String sentenciaHQL = "SELECT b FROM Servicio b";
+		String sentenciaHQL = "SELECT b FROM Servicio b where b.activo = true";
 		try (Session sesion = GestorSesionesHibernate.getSession();) {
 
 			SelectionQuery<Servicio> sentenciaConsulta = sesion.createSelectionQuery(sentenciaHQL, Servicio.class);
@@ -135,6 +136,26 @@ public class ServicioDaoHBNT implements ServicioDAO {
 		} catch (Exception e) {
 			throw new ProyectoClothoException(new Exception("No se ha encontrado ningun registro en la Cliente de datos"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
 		}
+	}
+	
+	@Override
+	public long contarDetallesPorServicio(int idServicio) throws ProyectoClothoException {
+		Session session = null;
+		long cantidad = 0;
+		try {
+			session = GestorSesionesHibernate.getSession();
+			String hql = "SELECT COUNT(d) FROM Detalle d WHERE d.servicio.identificador = :idSrv";
+			Query<Long> query = session.createQuery(hql, Long.class);
+			query.setParameter("idSrv", idServicio);
+			cantidad = query.uniqueResult();
+		} catch (Exception e) {
+			throw new ProyectoClothoException(new Exception("Error al verificar el uso histórico del servicio"), getClass(), ProyectoClothoException.ERROR_CONSULTA);
+		} finally {
+			if (session != null && session.isOpen()) {
+				session.close();
+			}
+		}
+		return cantidad;
 	}
 
 }

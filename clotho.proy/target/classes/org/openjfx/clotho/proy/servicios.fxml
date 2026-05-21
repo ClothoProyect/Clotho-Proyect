@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.geometry.Insets?>
 
-<VBox prefWidth="500.0" prefHeight="500.0" spacing="10.0" alignment="CENTER_LEFT" 
-    xmlns="http://javafx.com/javafx/8.0.171" 
-    stylesheets="@estilo.css" styleClass="panel-principal"
+<VBox prefWidth="700.0" prefHeight="400.0" spacing="20.0" alignment="CENTER"
+	xmlns="http://javafx.com/javafx/8.0.171" 
     xmlns:fx="http://javafx.com/fxml/1" 
+    stylesheets="@estilo.css" styleClass="panel-principal"
     fx:controller="org.openjfx.clotho.proy.ServiciosController">
-    <padding><Insets top="20" right="60" bottom="20" left="60"/></padding>
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
     
-    <Label text="" style="-fx-font-weight: bold;" fx:id="lblAnuncio"/>
+    <Label text="Modificación de Servicios"/>
+    <Label fx:id="lblAviso"/>
     
-    <Label text="Nombre del Servicio" style="-fx-font-weight: bold;"/>
-    <ComboBox fx:id="cmbNombreServicio" editable="true" promptText="Seleccione o escriba un servicio" maxWidth="Infinity"/>
+    <HBox spacing="10.0" alignment="CENTER">
+        <Label text="Buscar Servicio:"/>
+        <ComboBox fx:id="cmbBusquedaNombreServicio" editable="true" prefWidth="400.0" promptText="Escribe el nombre del servicio..."/>
+    </HBox>
     
-    <Label text="Precio (€)" style="-fx-font-weight: bold;"/>
-    <TextField fx:id="txtPrecioServicio" promptText="Precio en euros"/>
+    <HBox spacing="10.0" alignment="CENTER">
+    	<Label text="Información del Servicio"/>
+	</HBox>
     
-    <Label text="Descuento" style="-fx-font-weight: bold;"/>
-    <TextField fx:id="txtDescuento" promptText="Descuento %"/>
+    <GridPane hgap="15.0" vgap="15.0" alignment="CENTER">
+        <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtNombre" promptText="Nombre del servicio" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        
+        <Label text="Precio Estándar:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="txtPrecioEstandar" promptText="0.00  €" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    </GridPane>
     
-    <Label text="Descripción" style="-fx-font-weight: bold;"/>
-    <TextField fx:id="txtDescripcionServicio" promptText="Detalles adicionales..." prefHeight="100.0"/>
-    
-    <Button text="Añadir al Pedido" onAction="#guardarServicio" maxWidth="Infinity" styleClass="boton-clotho"/>
-    <Button text="Finalizar servicios" onAction="#finalizarServicio" maxWidth="Infinity" styleClass="boton-clotho"/>
+    <HBox spacing="20.0" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+        <Button fx:id="btnLimpiar" text="Limpiar" onAction="#limpiarFormulario" prefWidth="140.0" styleClass="boton-clotho"/>
+        <Button fx:id="btnGuardar" text="Guardar" onAction="#guardarServicio" prefWidth="140.0" styleClass="boton-clotho"/>
+        <Button fx:id="btnEliminar" text="Eliminar" onAction="#eliminarServicio" prefWidth="140.0" styleClass="boton-clotho-rojo"/>
+        
+        <Button fx:id="btnConfirmar" text="Confirmar" onAction="#confirmarEliminacion" prefWidth="140.0" styleClass="boton-clotho-rojo"/>
+        <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelarEliminacion" prefWidth="140.0" styleClass="boton-clotho"/>
+    </HBox>
 </VBox>

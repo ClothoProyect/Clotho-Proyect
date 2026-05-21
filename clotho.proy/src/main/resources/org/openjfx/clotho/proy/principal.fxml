@@ -34,8 +34,9 @@
                 <Button mnemonicParsing="false" text="Buscar Ticket" 
                 onAction="#abrirVentanaPedidos" styleClass="boton-clotho"/>
                 <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
-        		text="Gestionar Clientes" onAction="#abrirVentanaNuevoCliente" styleClass="boton-clotho" />
-                <Button mnemonicParsing="false" text="Salir" />
+        		text="Gestionar Clientes" onAction="#abrirVentanaClientes" styleClass="boton-clotho" />
+        		<Button text="Gestionar Servicios" maxWidth="1.7976931348623157E308" mnemonicParsing="false" 
+        		onAction="#abrirVentanaServicios" styleClass="boton-clotho"/>
               </items>
             </ToolBar>
             <HBox alignment="CENTER_LEFT" spacing="15.0">

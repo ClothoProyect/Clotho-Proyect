@@ -17,15 +17,15 @@ public class Factura {
 	@Id
 	@Column(name = "identificador", nullable = true)
 	private int identificador;
-	
+
 	@Column(name = "fecha", nullable = true)
 	private LocalDate fecha;
-	
+
 	@Column(name = "serial", nullable = true)
 	private String serial;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "identificador_pedido", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_FACTURA_PEDIDO"))
+	@JoinColumn(name = "identificador_pedido", referencedColumnName = "identificador", foreignKey = @ForeignKey(name = "FK_FACTURA_PEDIDO"))
 	private Pedido pedido;
 
 	public int getIdentificador() {
@@ -51,4 +51,13 @@ public class Factura {
 	public void setPedido(Pedido pedido) {
 		this.pedido = pedido;
 	}
+
+	public String getSerial() {
+		return serial;
+	}
+
+	public void setSerial(String serial) {
+		this.serial = serial;
+	}
+
 }

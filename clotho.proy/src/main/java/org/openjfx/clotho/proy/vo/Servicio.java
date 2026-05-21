@@ -15,6 +15,12 @@ public class Servicio {
 	@Column(name = "nombre", nullable = true, unique = true)
 	private String nombre;
 
+	@Column(name = "precio_estandar", nullable = false)
+	private float precioEstandar;
+
+	@Column(name = "activo", nullable = false)
+	private boolean activo = true;
+
 	public int getIdentificador() {
 		return identificador;
 	}
@@ -29,6 +35,22 @@ public class Servicio {
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+
+	public float getPrecioEstandar() {
+		return precioEstandar;
+	}
+
+	public void setPrecioEstandar(float precioEstandar) {
+		this.precioEstandar = precioEstandar;
+	}
+
+	public boolean isActivo() {
+		return activo;
+	}
+
+	public void setActivo(boolean activo) {
+		this.activo = activo;
 	}
 
 	@Override

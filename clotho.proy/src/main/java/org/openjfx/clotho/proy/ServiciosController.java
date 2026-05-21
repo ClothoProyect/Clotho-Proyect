@@ -2,167 +2,242 @@ package org.openjfx.clotho.proy;
 
 import java.util.function.UnaryOperator;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.openjfx.clotho.proy.dao.hbnt.ServicioDaoHBNT;
 import org.openjfx.clotho.proy.exception.ProyectoClothoException;
-import org.openjfx.clotho.proy.vo.Detalle;
 import org.openjfx.clotho.proy.vo.Servicio;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class ServiciosController {
 
-	// 1. Cambiamos TextField por ComboBox
-	@FXML
-	private ComboBox<Servicio> cmbNombreServicio;
-	@FXML
-	private TextField txtPrecioServicio;
-	@FXML
-	private TextField txtDescripcionServicio;
-	@FXML
-	private TextField txtDescuento;
-	@FXML
-	private Label lblAnuncio;
-	
-	private PrincipalController controladorPrincipal;
-	private ServicioDaoHBNT servicioHBNT = new ServicioDaoHBNT();
+	private ServicioDaoHBNT servicioDao = new ServicioDaoHBNT();
 	private ObservableList<Servicio> serviciosObs;
+	// Propiedad observable para pasarle la informacion a los TextField
+	private ObjectProperty<Servicio> servicioActual = new SimpleObjectProperty<>(null);
+	private boolean sincronizandoServicio = false;
+	private PrincipalController controladorPrincipal;
+
+	@FXML
+	private Label lblAviso;
+	@FXML
+	private TextField txtNombre;
+	@FXML
+	private TextField txtPrecioEstandar;
+	// Filtro de busque de servicios actuales
+	@FXML
+	private ComboBox<Servicio> cmbBusquedaNombreServicio;
+
+	@FXML
+	private Button btnLimpiar;
+	@FXML
+	private Button btnGuardar;
+	@FXML
+	private Button btnEliminar;
+	@FXML
+	private Button btnConfirmar;
+	@FXML
+	private Button btnCancelar;
+
+	private BooleanProperty procesoElimanacion = new SimpleBooleanProperty(false);
+
+	@FXML
+	public void initialize() {
+		// Fijador de mayusculas en los TextField
+		UnaryOperator<TextFormatter.Change> filtroMayusculas = cambio -> {
+			cambio.setText(cambio.getText().toUpperCase());
+			return cambio;
+		};
+		txtNombre.setTextFormatter(new TextFormatter<>(filtroMayusculas));
+
+		try {
+			serviciosObs = FXCollections.observableArrayList(servicioDao.obtenerListaTodasEntidades());
+		} catch (ProyectoClothoException e) {
+			e.printStackTrace();
+		}
+
+		cmbBusquedaNombreServicio.setItems(serviciosObs);
+
+		// Convertidor para gestionar las busquedas de autocompletado en el ComboBox
+		cmbBusquedaNombreServicio.setConverter(new StringConverter<Servicio>() {
+			@Override
+			public String toString(Servicio servicio) {
+				return servicio == null ? "" : servicio.getNombre();
+			}
+
+			@Override
+			public Servicio fromString(String filtro) {
+				if (filtro == null || filtro.isEmpty()) {
+					return null;
+				}
+				return serviciosObs.stream().filter(s -> s.getNombre().toUpperCase().contains(filtro.toUpperCase()))
+						.findFirst().orElse(null);
+			}
+		});
+
+		// Listener para rellenar el formulario al seleccionar un servicio
+		cmbBusquedaNombreServicio.valueProperty().addListener((obs, oldVal, newVal) -> cargarDatosServicio(newVal));
+
+		// Vinculacion para botones dependiendo de la seleccion de un servicio
+		btnLimpiar.visibleProperty().bind(procesoElimanacion.not());
+		btnLimpiar.managedProperty().bind(btnLimpiar.visibleProperty());
+
+		btnGuardar.visibleProperty().bind(procesoElimanacion.not());
+		btnGuardar.managedProperty().bind(btnGuardar.visibleProperty());
+
+		// El botón eliminar solo se muestra si NO se está borrando Y hay un servicio
+		// seleccionado
+		btnEliminar.visibleProperty().bind(procesoElimanacion.not().and(servicioActual.isNotNull()));
+		btnEliminar.managedProperty().bind(btnEliminar.visibleProperty());
+
+		btnConfirmar.visibleProperty().bind(procesoElimanacion);
+		btnConfirmar.managedProperty().bind(btnConfirmar.visibleProperty());
+
+		btnCancelar.visibleProperty().bind(procesoElimanacion);
+		btnCancelar.managedProperty().bind(btnCancelar.visibleProperty());
+	}
 
 	public void setControladorPrincipal(PrincipalController principal) {
 		this.controladorPrincipal = principal;
 	}
 
 	@FXML
-	public void initialize() {
-		// Conversor de mayusculas a tiempo real
-		UnaryOperator<TextFormatter.Change> filtroMayusculas = cambio -> {
-			cambio.setText(cambio.getText().toUpperCase());
-			return cambio;
-		};
+	private void guardarServicio() {
+		if (txtNombre.getText().trim().isEmpty()) {
+			lblAviso.setText("El nombre del servicio no puede estar vacío.");
+			return;
+		}
 
-		txtDescripcionServicio.setTextFormatter(new TextFormatter<>(filtroMayusculas));
-
-		cmbNombreServicio.getEditor().setTextFormatter(new TextFormatter<>(filtroMayusculas));
-
-		cargaListaServicios();
-	}
-
-	private void cargaListaServicios() {
+		float precioParsed = 0f;
 		try {
-			// Cargamos todos los servicios de la BD
-			serviciosObs = FXCollections.observableArrayList(servicioHBNT.obtenerListaTodasEntidades());
-			cmbNombreServicio.setItems(serviciosObs);
+			precioParsed = Float.parseFloat(txtPrecioEstandar.getText().trim());
+		} catch (NumberFormatException e) {
+			lblAviso.setText("Introduce un número válido para el precio (formato con un \".\").");
+			return;
+		}
 
-			// Configuramos el conversor para mostrar el nombre y permitir la búsqueda
-			cmbNombreServicio.setConverter(new StringConverter<Servicio>() {
-				@Override
-				public String toString(Servicio servicio) {
-					if (servicio == null)
-						return "";
-					return servicio.getNombre();
+		try {
+			if (this.servicioActual.get() == null) {
+				Servicio nuevoServicio = new Servicio();
+				nuevoServicio.setNombre(txtNombre.getText().trim());
+
+				// Validación de nombre duplicado
+				if (servicioDao.obtenerEntidadPorNombre(nuevoServicio) != null) {
+					lblAviso.setText("Error: Ya existe un servicio con ese nombre.");
+					return;
 				}
 
-				@Override
-				public Servicio fromString(String string) {
-					if (string == null || string.isEmpty())
-						return null;
+				nuevoServicio.setIdentificador(servicioDao.obtenerUltimoIdentificador() + 1);
+				nuevoServicio.setPrecioEstandar(precioParsed);
+				nuevoServicio.setActivo(true);
 
-					// Busca coincidencias en la lista
-					return serviciosObs.stream()
-							.filter(s -> s.getNombre().toLowerCase().startsWith(string.toLowerCase())).findFirst()
-							// Si no existe (es un servicio nuevo que el usuario está tecleando),
-							// creamos un objeto Servicio temporal solo con el nombre
-							.orElseGet(() -> {
-								Servicio nuevoSrv = new Servicio();
-								nuevoSrv.setNombre(string);
-								return nuevoSrv;
-							});
-				}
-			});
+				servicioDao.crearEntidad(nuevoServicio);
+				serviciosObs.add(nuevoServicio);
+				limpiarFormulario();
+				lblAviso.setText("Servicio creado correctamente.");
+			} else {
+				Servicio srvEditado = this.servicioActual.get();
+				srvEditado.setNombre(txtNombre.getText().trim());
+				srvEditado.setPrecioEstandar(precioParsed);
+
+				servicioDao.actualizarEntidad(srvEditado);
+				limpiarFormulario();
+				lblAviso.setText("Servicio actualizado correctamente.");
+			}
 
 		} catch (ProyectoClothoException e) {
+			lblAviso.setText("Error interno al procesar el servicio.");
 			e.printStackTrace();
 		}
 	}
 
 	@FXML
-	private void guardarServicio() {
-		ServicioDaoHBNT servicioHBNT = new ServicioDaoHBNT();
-		try {
-			// 1. Limpiamos y preparamos el nombre del SERVICIO
-			String nombreLimpio = "";
+	private void limpiarFormulario() {
+		lblAviso.setText("");
+		sincronizandoServicio = true;
 
-			// Si el usuario seleccionó un servicio de la lista desplegable
-			if (cmbNombreServicio.getValue() != null && cmbNombreServicio.getValue().getNombre() != null) {
-				nombreLimpio = cmbNombreServicio.getValue().getNombre().trim();
-			}
-			// Si el usuario escribió un texto libremente
-			else if (cmbNombreServicio.getEditor().getText() != null) {
-				nombreLimpio = cmbNombreServicio.getEditor().getText().trim();
-			}
+		this.txtNombre.clear();
+		this.txtPrecioEstandar.clear();
 
-			// Si está vacío o es igual al texto de ayuda por accidente, cortamos
-			if (nombreLimpio.isEmpty() || nombreLimpio.equalsIgnoreCase("Seleccione o escriba un servicio")) {
-				System.err.println("Campos vacíos, El nombre del servicio no puede estar vacío.");
-				return;
-			}
-
-			Servicio servicio = new Servicio();
-			servicio.setNombre(nombreLimpio);
-
-			// 2. Buscamos si el SERVICIO ya existe en el catálogo
-			Servicio servicioExistente = servicioHBNT.obtenerEntidadPorNombre(servicio);
-
-			if (servicioExistente == null) {
-				// Si no existe, lo creamos
-				servicio.setIdentificador(servicioHBNT.obtenerUltimoIdentificador() + 1);
-				// servicio.setDescripcion(txtDescripcionServicio.getText().trim());
-
-				servicioHBNT.crearEntidad(servicio);
-				servicioExistente = servicio;
-			}
-
-			// 3. AHORA CREAMOS EL DETALLE DEL PEDIDO
-			Detalle nuevoDetalle = new Detalle();
-			nuevoDetalle.setServicio(servicioExistente);
-
-			// Extraemos el precio
-			float precioParsed = Float.parseFloat(txtPrecioServicio.getText().trim());
-			nuevoDetalle.setPrecioUnitario(precioParsed);
-
-			// AÑADE ESTA LÍNEA: Guardamos la descripción en el detalle
-			nuevoDetalle.setDescripcion(txtDescripcionServicio.getText().trim());
-
-			// 4. Enviamos el DETALLE COMPLETO a la tabla principal
-			controladorPrincipal.recibirDatosDetalle(nuevoDetalle);
-			
-			// Cerramos la ventana emergente
-			Stage stage = (Stage) cmbNombreServicio.getScene().getWindow();
-			stage.close();
-
-		} catch (ConstraintViolationException e) {
-			// Corregido: Ahora usa nombreLimpio en vez del promptText
-			System.err.println("Servicio Duplicado, Ya existe un servicio llamado '"
-					+ cmbNombreServicio.getEditor().getText().trim() + "' en la base de datos.");
-		} catch (NumberFormatException e) {
-			System.err.println("Error de Precio, Por favor, introduce un número válido para el precio (ej. 15.50).");
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Error del sistema, Ha ocurrido un error inesperado.");
+		if (cmbBusquedaNombreServicio != null) {
+			cmbBusquedaNombreServicio.setValue(null);
+			cmbBusquedaNombreServicio.getEditor().clear();
 		}
+
+		this.servicioActual.set(null);
+		sincronizandoServicio = false;
 	}
 
 	@FXML
-	private void finalizarServicio() {
-		Stage stage = (Stage) cmbNombreServicio.getScene().getWindow();
-		stage.close();
+	private void eliminarServicio() {
+		if (this.servicioActual.get() == null) {
+			lblAviso.setText("Debes seleccionar un servicio para eliminarlo.");
+			return;
+		}
+		procesoElimanacion.set(true);
+	}
+
+	@FXML
+	private void cancelarEliminacion() {
+		lblAviso.setText("");
+		procesoElimanacion.set(false);
+	}
+
+	@FXML
+	private void confirmarEliminacion() {
+		if (this.servicioActual.get() != null) {
+			Servicio srvABorrar = this.servicioActual.get();
+			String nombreBorrado = srvABorrar.getNombre();
+			try {
+				if (servicioDao.contarDetallesPorServicio(srvABorrar.getIdentificador()) > 0) {
+					// Si tiene registros en T_PEDIDO, hacemos directamente un borrado lógico
+					srvABorrar.setActivo(false);
+					servicioDao.actualizarEntidad(srvABorrar);
+					limpiarFormulario();
+					lblAviso.setText("Aviso: El servicio tiene históricos. Se ha marcado como INACTIVO.");
+				} else {
+					// Si nadie lo ha usado nunca, se borra de T_SERVICIO
+					servicioDao.borrarEntidadPorClave(srvABorrar.getIdentificador());
+					serviciosObs.remove(srvABorrar);
+					limpiarFormulario();
+					lblAviso.setText("Servicio '" + nombreBorrado + "' eliminado correctamente.");
+				}
+			} catch (Exception e) {
+				lblAviso.setText("Error crítico al desactivar el servicio.");
+				e.printStackTrace();
+			}
+		}
+		procesoElimanacion.set(false);
+
+	}
+
+	private void cargarDatosServicio(Servicio servicioSeleccionado) {
+		if (sincronizandoServicio) {
+			return;
+		}
+
+		sincronizandoServicio = true;
+		this.servicioActual.set(servicioSeleccionado);
+
+		if (servicioSeleccionado != null) {
+			cmbBusquedaNombreServicio.setValue(servicioSeleccionado);
+			txtNombre.setText(servicioSeleccionado.getNombre() != null ? servicioSeleccionado.getNombre() : "");
+			txtPrecioEstandar.setText(String.valueOf(servicioSeleccionado.getPrecioEstandar()));
+		} else {
+			limpiarFormulario();
+		}
+
+		sincronizandoServicio = false;
 	}
 }

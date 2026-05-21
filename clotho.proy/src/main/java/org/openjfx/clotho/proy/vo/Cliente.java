@@ -12,22 +12,25 @@ public class Cliente {
 	@Column(name = "identificador", nullable = true)
 	private int identificador;
 	
-	@Column(name = "nombre", length = 70, nullable = true)
+	@Column(name = "activo", nullable = false)
+	private boolean activo = true;
+	
+	@Column(name = "nombre", length = 70, nullable = false)
 	private String nombre;
 	
-	@Column(name = "apellidos", length = 70)
+	@Column(name = "apellidos", length = 70, nullable = false)
 	private String apellidos;
 
-	@Column(name = "email", length = 100, nullable = false)
+	@Column(name = "email", length = 100, nullable = true)
 	private String email;
 	
-	@Column(name = "telefono", length = 100, nullable = false)
+	@Column(name = "telefono", length = 100, nullable = true)
 	private String telefono;
 
 	@Column(name = "cif", length = 70, nullable = true)
 	private String cif;
 
-	@Column(name = "direccion", length = 70, nullable = false)
+	@Column(name = "direccion", length = 70, nullable = true)
 	private String direccion;
 
 	@Column(name = "codigo_postal", length = 8, nullable = true)
@@ -45,6 +48,14 @@ public class Cliente {
 
 	public void setIdentificador(int identificador) {
 		this.identificador = identificador;
+	}
+
+	public boolean isActivo() {
+		return activo;
+	}
+
+	public void setActivo(boolean activo) {
+		this.activo = activo;
 	}
 
 	public String getNombre() {
